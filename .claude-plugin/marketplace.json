@@ -1,0 +1,19 @@
+{
+  "name": "stack-watch",
+  "owner": {
+    "name": "raz-app-io",
+    "url": "https://github.com/raz-app-io"
+  },
+  "metadata": {
+    "description": "stack-watch: vendor changelog monitoring for your project's technology stack."
+  },
+  "plugins": [
+    {
+      "name": "stack-watch",
+      "source": "./",
+      "description": "Probe vendor changelogs for changes that affect your stack and propose tickets.",
+      "version": "1.0.0",
+      "license": "MIT"
+    }
+  ]
+}

@@ -1,0 +1,175 @@
+#!/usr/bin/env python3
+"""stack-watch seen-items ledger.
+
+The ledger (stack-watch/ledger.json in the target repo) records every vendor
+item ever seen, with a content hash, dates, severity, and the user's decision,
+plus a history of runs. It prevents repeat reporting across runs and is the
+only record of when the last probe ran.
+
+Decision values: ticketed, watch, dismissed, auto-dismissed, pending.
+"pending" marks an item presented in a proposal table that the user has not
+decided on yet; it is re-shown on the next run with a "previously proposed,
+awaiting decision" note.
+
+CLI usage (all subcommands take the ledger path first; the file is created
+empty if missing):
+
+    ledger.py <ledger.json> hash <vendor> <url> <title>
+    ledger.py <ledger.json> seen <hash>            -> prints the decision or "no"
+    ledger.py <ledger.json> add                    -> reads one item JSON object,
+                                                      or an array of them, on stdin
+    ledger.py <ledger.json> set-decision <hash> <decision> [ticket_url]
+    ledger.py <ledger.json> last-probed            -> prints ISO date or "null"
+    ledger.py <ledger.json> record-run <mode> <lookback_from> <items_seen> <items_proposed>
+    ledger.py <ledger.json> list [decision]        -> prints matching items JSON
+
+Also importable: seen(), add(), set_decision(), last_probed(), item_hash().
+Standard library only.
+"""
+
+import datetime
+import hashlib
+import json
+import os
+import sys
+
+SCHEMA_VERSION = 1
+DECISIONS = {"ticketed", "watch", "dismissed", "auto-dismissed", "pending"}
+
+
+def item_hash(vendor, url, title):
+    raw = f"{vendor}|{url}|{title}"
+    return hashlib.sha256(raw.encode("utf-8")).hexdigest()
+
+
+def load(path):
+    if not os.path.isfile(path):
+        return {"schema_version": SCHEMA_VERSION, "runs": [], "items": []}
+    with open(path, encoding="utf-8") as f:
+        return json.load(f)
+
+
+def save(path, data):
+    os.makedirs(os.path.dirname(os.path.abspath(path)), exist_ok=True)
+    tmp = path + ".tmp"
+    with open(tmp, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2, ensure_ascii=False)
+        f.write("\n")
+    os.replace(tmp, path)
+
+
+def find(data, h):
+    for item in data["items"]:
+        if item.get("hash") == h:
+            return item
+    return None
+
+
+def seen(path, h):
+    """Return the item dict if the hash is in the ledger, else None."""
+    return find(load(path), h)
+
+
+def _add_to(data, item):
+    if not item.get("hash"):
+        item["hash"] = item_hash(item.get("vendor", ""), item.get("url", ""),
+                                 item.get("title", ""))
+    existing = find(data, item["hash"])
+    if existing:
+        return existing
+    item.setdefault("first_seen", datetime.date.today().isoformat())
+    item.setdefault("decision", "pending")
+    if item["decision"] not in DECISIONS:
+        raise ValueError(f"unknown decision: {item['decision']}")
+    data["items"].append(item)
+    return item
+
+
+def add(path, item):
+    """Add one item. Fills hash, first_seen, and default decision if absent.
+    Refuses a duplicate hash (returns the existing item unchanged)."""
+    data = load(path)
+    result = _add_to(data, item)
+    save(path, data)
+    return result
+
+
+def add_many(path, items):
+    """Add a list of items in one load/save. Returns the stored items."""
+    data = load(path)
+    results = [_add_to(data, item) for item in items]
+    save(path, data)
+    return results
+
+
+def set_decision(path, h, decision, ticket_url=None):
+    if decision not in DECISIONS:
+        raise ValueError(f"unknown decision: {decision}")
+    data = load(path)
+    item = find(data, h)
+    if item is None:
+        raise KeyError(f"hash not in ledger: {h}")
+    item["decision"] = decision
+    item["decided_on"] = datetime.date.today().isoformat()
+    if ticket_url:
+        item["ticket_url"] = ticket_url
+    save(path, data)
+    return item
+
+
+def last_probed(path):
+    """ISO date of the most recent probe run recorded, else None."""
+    data = load(path)
+    dates = [r["date"] for r in data["runs"] if r.get("mode") == "probe"]
+    return max(dates) if dates else None
+
+
+def record_run(path, mode, lookback_from, items_seen, items_proposed):
+    data = load(path)
+    if lookback_from in ("", "null", "none"):
+        lookback_from = None
+    run = {"date": datetime.date.today().isoformat(), "mode": mode,
+           "lookback_from": lookback_from, "items_seen": int(items_seen),
+           "items_proposed": int(items_proposed)}
+    data["runs"].append(run)
+    save(path, data)
+    return run
+
+
+def main():
+    if len(sys.argv) < 3:
+        print(__doc__)
+        sys.exit(2)
+    path, cmd, rest = sys.argv[1], sys.argv[2], sys.argv[3:]
+    if cmd == "hash":
+        print(item_hash(*rest))
+    elif cmd == "seen":
+        item = seen(path, rest[0])
+        print(item["decision"] if item else "no")
+    elif cmd == "add":
+        payload = json.load(sys.stdin)
+        if isinstance(payload, list):
+            print(json.dumps(add_many(path, payload)))
+        else:
+            print(json.dumps(add(path, payload)))
+    elif cmd == "set-decision":
+        h, decision = rest[0], rest[1]
+        url = rest[2] if len(rest) > 2 else None
+        print(json.dumps(set_decision(path, h, decision, url)))
+    elif cmd == "last-probed":
+        print(last_probed(path) or "null")
+    elif cmd == "record-run":
+        print(json.dumps(record_run(path, *rest)))
+    elif cmd == "list":
+        data = load(path)
+        items = data["items"]
+        if rest:
+            items = [i for i in items if i.get("decision") == rest[0]]
+        print(json.dumps(items, indent=2))
+    else:
+        print(f"unknown command: {cmd}", file=sys.stderr)
+        sys.exit(2)
+
+
+if __name__ == "__main__":
+    main()

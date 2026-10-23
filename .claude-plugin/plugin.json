@@ -1,0 +1,13 @@
+{
+  "name": "stack-watch",
+  "version": "1.0.0",
+  "description": "Keep a STACK.md of your project's technology, probe every vendor's public changelog for breaking changes, deprecations, pricing changes, and security advisories, and turn the ones that matter into tickets.",
+  "author": {
+    "name": "raz-app-io",
+    "url": "https://github.com/raz-app-io"
+  },
+  "homepage": "https://github.com/raz-app-io/stack-watch",
+  "repository": "https://github.com/raz-app-io/stack-watch",
+  "license": "MIT",
+  "keywords": ["dependencies", "changelog", "deprecations", "vendor-updates", "security-advisories", "stack"]
+}
