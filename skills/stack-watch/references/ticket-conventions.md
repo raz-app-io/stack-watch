@@ -38,7 +38,7 @@ Tickets are rows in one table in `stack-watch/tickets.md` in the target repo. If
 
 Cells cannot contain line breaks or unescaped `|`. The "URL" recorded in the ledger is `stack-watch/tickets.md#SW-001` (the ID after the hash). Rule 9 note for this tracker: when the vendor date minus 14 days is already in the past, use the vendor date itself.
 
-See `examples/sample-next-app/stack-watch/tickets.md` in the stack-watch repository for a filled example with two linked pairs and one single work ticket.
+See `samples/tickets.md` in the stack-watch repository for a filled example with two linked pairs and one single work ticket.
 
 ## Tracker: asana
 

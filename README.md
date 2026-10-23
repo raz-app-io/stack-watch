@@ -6,6 +6,8 @@ Vendors announce these in changelogs nobody reads. stack-watch reads them for yo
 
 ## What it does
 
+A worked example of every step below is in [samples/README.md](samples/README.md).
+
 1. **Discovers your stack.** A deterministic scanner reads `package.json`, your lockfile (npm, pnpm, Yarn, bun), hosting and framework config, layout files for third-party script tags, and env var *names* (never values). A renderer writes a `STACK.md` at your repo root that every contributor can read and correct.
 2. **Detects drift.** Each run rescans, diffs against `STACK.md`, applies the changes, and summarizes git activity on dependency and config files since the last scan. A new package, a version bump, or a removed service from another contributor shows up in the report. Rows that disappear are flagged once and removed on the second consecutive miss.
 3. **Probes vendor sources.** A fetcher reads every RSS and Atom feed and GitHub releases source for the vendors in your stack, and runs your package manager's audit. HTML-only changelogs are read by Claude directly.
@@ -56,7 +58,7 @@ Or just ask: "Check for vendor updates that affect this project", "What changed 
 
 The first run is a **bootstrap**: it builds `STACK.md` and `stack-watch/sources.json`, then stops for you to confirm them and fill in the hand-confirmed section (services the scan can't see, such as DNS, email, or analytics accounts). Every later run is a **probe**.
 
-There is a ready-made sample project in [examples/sample-next-app](examples/sample-next-app) if you want to see what the output looks like before pointing it at your own repo.
+**Want to see it before running it?** [samples/README.md](samples/README.md) walks through one complete run: the generated STACK.md, the vendor sources, the report with its proposal table, the tickets, and the ledger. The input project is [examples/sample-next-app](examples/sample-next-app).
 
 ## Files it writes in your repo
 
@@ -86,7 +88,7 @@ Commit them. They're meant to be shared with everyone who works on the repo.
 
 | `type` | `project` | Needs |
 |---|---|---|
-| `markdown` (default) | ignored | nothing; tickets are rows in a table in `stack-watch/tickets.md` ([example](examples/sample-next-app/stack-watch/tickets.md)) |
+| `markdown` (default) | ignored | nothing; tickets are rows in a table in `stack-watch/tickets.md` ([sample](samples/tickets.md)) |
 | `asana` | Asana project name | Asana MCP connector |
 | `linear` | team name, or `Team/Project` | Linear MCP connector |
 | `github` | `owner/repo` | `gh` CLI or GitHub MCP connector |
@@ -123,7 +125,8 @@ skills/stack-watch/
   references/            STACK.md template, vendor sources, severity rubric, ticket conventions
   assets/                report and tickets.md templates
   scripts/               scan_repo, render_stack, diff_stack, fetch_sources, audit, ledger
-examples/sample-next-app a small project with a generated STACK.md and sources.json
+examples/sample-next-app a small Next.js project the samples and tests run against
+samples/                 one complete run's output (STACK.md, sources, report, tickets, ledger) with a walkthrough
 tests/                   unit tests for the scripts (Python 3.9+, standard library only)
 ```
 
@@ -137,8 +140,8 @@ The scripts can be run directly. Against the sample project:
 
 ```bash
 python3 skills/stack-watch/scripts/scan_repo.py examples/sample-next-app --pretty > /tmp/scan.json
-python3 skills/stack-watch/scripts/diff_stack.py /tmp/scan.json examples/sample-next-app/STACK.md --pretty
-python3 skills/stack-watch/scripts/fetch_sources.py examples/sample-next-app/stack-watch/sources.json --since 2026-10-01 --pretty
+python3 skills/stack-watch/scripts/diff_stack.py /tmp/scan.json samples/STACK.md --pretty
+python3 skills/stack-watch/scripts/fetch_sources.py samples/sources.json --since 2026-10-01 --pretty
 python3 skills/stack-watch/scripts/audit.py --input tests/fixtures/audit_npm7.json --pretty
 ```
 

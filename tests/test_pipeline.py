@@ -18,6 +18,7 @@ SKILL = os.path.join(ROOT, "skills", "stack-watch")
 SCRIPTS = os.path.join(SKILL, "scripts")
 FIXTURES = os.path.join(os.path.dirname(__file__), "fixtures")
 EXAMPLE = os.path.join(ROOT, "examples", "sample-next-app")
+SAMPLES = os.path.join(ROOT, "samples")
 
 sys.path.insert(0, SCRIPTS)
 import audit  # noqa: E402
@@ -327,15 +328,15 @@ class LedgerFilterTest(unittest.TestCase):
 
 
 class SampleProjectTest(unittest.TestCase):
-    """The committed example stays in sync with the scripts."""
+    """The committed samples stay in sync with the scripts and the example project."""
 
-    def test_example_stack_md_has_no_drift(self):
+    def test_sample_stack_md_has_no_drift(self):
         scan = run("scan_repo.py", EXAMPLE)
         self.assertEqual(scan.returncode, 0, scan.stderr)
         with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False) as f:
             f.write(scan.stdout)
         try:
-            r = run("diff_stack.py", f.name, os.path.join(EXAMPLE, "STACK.md"))
+            r = run("diff_stack.py", f.name, os.path.join(SAMPLES, "STACK.md"))
         finally:
             os.unlink(f.name)
         self.assertEqual(r.returncode, 0, r.stdout)
@@ -345,8 +346,8 @@ class SampleProjectTest(unittest.TestCase):
         self.assertEqual(items["stripe"]["category"], "payments")
         self.assertEqual(items["Node.js"]["version"], "20.11.1")
 
-    def test_example_sources_json_is_well_formed(self):
-        with open(os.path.join(EXAMPLE, "stack-watch", "sources.json"), encoding="utf-8") as f:
+    def test_sample_sources_json_is_well_formed(self):
+        with open(os.path.join(SAMPLES, "sources.json"), encoding="utf-8") as f:
             doc = json.load(f)
         self.assertEqual(doc["schema_version"], 1)
         for v in doc["vendors"]:
