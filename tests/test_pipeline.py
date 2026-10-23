@@ -317,7 +317,8 @@ class AuditTest(unittest.TestCase):
     def test_detect_pm_and_missing_lockfile(self):
         with tempfile.TemporaryDirectory() as d:
             self.assertIsNone(audit.detect_pm(d))
-            self.assertEqual(audit.run_audit(d)["error"], "no lockfile found")
+            self.assertEqual(audit.run_audit(d, source="pm")["error"], "no lockfile found")
+            self.assertEqual(audit.run_audit(d, source="osv")["error"], "no lockfile and no exact pins")
             with open(os.path.join(d, "yarn.lock"), "w") as f:
                 f.write("# yarn lockfile v1\n")
             self.assertEqual(audit.detect_pm(d), "yarn")
@@ -392,3 +393,216 @@ class SampleProjectTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class AuditOsvTest(unittest.TestCase):
+    def test_parse_osv_matches_npm_audit_hashes(self):
+        with open(os.path.join(FIXTURES, "osv_query.json"), encoding="utf-8") as f:
+            resp = json.load(f)
+        items = audit.parse_osv([resp], direct={"drizzle-orm"})
+        self.assertEqual(len(items), 2)
+        ghsa = items[0]
+        self.assertEqual(ghsa["url"], "https://github.com/advisories/GHSA-gpj5-g38j-94v9")
+        self.assertEqual(ghsa["title"],
+                         "high severity: Drizzle ORM has SQL injection via improperly escaped SQL identifiers")
+        self.assertEqual(ghsa["vulnerable_range"], "<0.45.2, >=1.0.0-beta.2 <1.0.0-beta.20")
+        self.assertIn("Fix: upgrade drizzle-orm to 0.45.2.", ghsa["body"])  # lowest stable fix above 0.38.3
+        self.assertTrue(ghsa["direct"])
+        # same hash as the npm-audit item for this advisory
+        npm_items = audit.parse_output(read_fixture("audit_npm7.json"), "npm")
+        self.assertEqual(ghsa["hash"], audit.make_item(
+            "drizzle-orm", ghsa["title"].split(": ", 1)[1], ghsa["url"], "high", None, None, True)["hash"])
+        self.assertTrue(all(i["hash"] for i in npm_items))
+        mal = items[1]
+        self.assertEqual(mal["url"], "https://github.com/advisories/GHSA-aaaa-bbbb-cccc")  # alias wins
+        self.assertEqual(mal["advisory_severity"], "unknown")
+        self.assertEqual(mal["vulnerable_range"], ">=0.38.0 <=0.38.9")
+
+    def test_parse_output_detects_osv(self):
+        items = audit.parse_output(read_fixture("osv_query.json"))
+        self.assertEqual(len(items), 2)
+
+    def test_locked_packages_from_example(self):
+        locked, direct, unresolved = audit.locked_packages(EXAMPLE)
+        self.assertEqual(locked["next"], "14.2.21")
+        self.assertIn("typescript", direct)
+        self.assertEqual(unresolved, [])
+
+
+class LifecycleTest(unittest.TestCase):
+    NODE_CYCLES = [
+        {"cycle": "26", "eol": "2029-04-30", "latest": "26.12.1", "lts": "2026-10-28"},
+        {"cycle": "24", "eol": "2028-04-30", "latest": "24.22.1", "lts": "2025-10-28"},
+        {"cycle": "22", "eol": "2027-04-30", "latest": "22.23.4", "lts": True},
+        {"cycle": "20", "eol": "2026-04-30", "latest": "20.20.2", "lts": True},
+    ]
+    TW_CYCLES = [{"cycle": "4.1", "eol": False, "latest": "4.1.9"}, {"cycle": "3.4", "eol": "2028-01-01", "latest": "3.4.19"}]
+
+    def test_eol_row_end_of_life(self):
+        import lifecycle
+        row = lifecycle.eol_row("Node.js", "nodejs", "20.11.1", self.NODE_CYCLES, "2026-10-22", 120)
+        self.assertEqual(row["status"], "end-of-life")
+        self.assertEqual(row["latest_in_cycle"], "20.20.2")
+        self.assertEqual(row["supported_newer_cycles"], ["26", "24", "22"])
+        item = lifecycle.eol_item(row)
+        self.assertEqual(item["title"], "Node.js 20 reached end of life on 2026-04-30")
+        self.assertEqual(item["severity"], "Deprecation")
+        self.assertEqual(item["url"], "https://endoflife.date/nodejs")
+
+    def test_eol_row_soon_and_supported(self):
+        import lifecycle
+        soon = lifecycle.eol_row("Node.js", "nodejs", "22.1.0", self.NODE_CYCLES, "2027-02-01", 120)
+        self.assertEqual(soon["status"], "ending soon")
+        self.assertIn("reaches end of life on 2027-04-30", lifecycle.eol_item(soon)["title"])
+        ok = lifecycle.eol_row("Node.js", "nodejs", ">=24", self.NODE_CYCLES, "2026-10-22", 120)
+        self.assertEqual(ok["status"], "supported")
+        self.assertIsNone(lifecycle.eol_item(ok))
+
+    def test_minor_cycles_and_unknown(self):
+        import lifecycle
+        row = lifecycle.eol_row("tailwindcss", "tailwind-css", "3.4.17", self.TW_CYCLES, "2026-10-22", 120)
+        self.assertEqual(row["cycle"], "3.4")
+        self.assertEqual(row["status"], "supported")
+        self.assertEqual(row["supported_newer_cycles"], ["4.1"])
+        unknown = lifecycle.eol_row("tailwindcss", "tailwind-css", "2.0.0", self.TW_CYCLES, "2026-10-22", 120)
+        self.assertEqual(unknown["status"], "unknown cycle")
+
+    def test_version_row_and_deprecation(self):
+        import lifecycle
+        doc = {"dist-tags": {"latest": "16.4.2", "canary": "16.5.0-canary.1"},
+               "versions": {"14.2.21": {"deprecated": "This version has a security vulnerability."},
+                            "14.2.35": {}, "15.5.28": {}, "16.4.2": {}, "16.5.0-canary.1": {}}}
+        row = lifecycle.version_row("next", "14.2.21", doc)
+        self.assertEqual((row["latest"], row["latest_in_major"], row["majors_behind"]), ("16.4.2", "14.2.35", 2))
+        item = lifecycle.deprecation_item(row)
+        self.assertTrue(item["title"].startswith("next@14.2.21 is deprecated on npm: This version"))
+        self.assertEqual(item["url"], "https://www.npmjs.com/package/next/v/14.2.21")
+        ranged = lifecycle.version_row("next", "^14.2.0", doc)
+        self.assertFalse(ranged["exact"])
+        self.assertIsNone(lifecycle.deprecation_item(ranged))
+
+    def test_check_with_injected_fetch(self):
+        import lifecycle
+        def fake(url, timeout, accept=None):
+            if "endoflife" in url:
+                return self.NODE_CYCLES
+            return {"dist-tags": {"latest": "2.0.0"}, "versions": {"1.0.0": {"deprecated": "use 2"}, "2.0.0": {}}}
+        scan = {"items": [{"section": "runtime", "name": "Node.js", "version": "20.11.1"},
+                          {"section": "key_package", "name": "zod", "version": "1.0.0"},
+                          {"section": "framework", "name": "Next.js config", "version": None}]}
+        out = lifecycle.check(scan, today="2026-10-22", fetch=fake)
+        self.assertEqual([i["severity"] for i in out["items"]], ["Deprecation", "Deprecation"])
+        self.assertEqual(len(out["versions"]), 1)
+        self.assertEqual(out["errors"], [])
+
+
+class DiscoverSourcesTest(unittest.TestCase):
+    def test_parse_repository_shapes(self):
+        import discover_sources as ds
+        for v in ["git+https://github.com/vercel/next.js.git", "git@github.com:vercel/next.js.git",
+                  "github:vercel/next.js", "vercel/next.js", {"type": "git", "url": "https://github.com/vercel/next.js"},
+                  "git+ssh://git@github.com/vercel/next.js.git#main"]:
+            self.assertEqual(ds.parse_repository(v), ("vercel", "next.js"), v)
+        self.assertIsNone(ds.parse_repository("https://gitlab.com/o/r.git"))
+        self.assertIsNone(ds.parse_repository(""))
+        self.assertIsNone(ds.parse_repository(None))
+
+    def test_feed_and_changelog_links(self):
+        import discover_sources as ds
+        page = '''<html><head>
+          <link rel="alternate" type="application/rss+xml" title="Changelog" href="/changelog/rss.xml">
+          <link rel='alternate' type='application/atom+xml' href='https://example.com/atom.xml'/>
+          <link rel="stylesheet" href="/x.css"></head>
+          <body><a href="/changelog">Changelog</a><a href="https://other.com/changelog">x</a>
+          <a href="/docs/release-notes">Release notes</a></body></html>'''
+        self.assertEqual(ds.feed_links_in_html(page, "https://www.example.com/"),
+                         ["https://www.example.com/changelog/rss.xml", "https://example.com/atom.xml"])
+        self.assertEqual(ds.changelog_links_in_html(page, "https://www.example.com/"),
+                         ["https://www.example.com/changelog", "https://www.example.com/docs/release-notes"])
+        self.assertTrue(ds.looks_like_feed('<?xml version="1.0"?><rss version="2.0">'))
+        self.assertFalse(ds.looks_like_feed("<!DOCTYPE html><html>"))
+
+    def test_group_by_vendor(self):
+        import discover_sources as ds
+        recs = [{"package": "react", "repository": "github:facebook/react", "homepage": "https://react.dev/"},
+                {"package": "react-dom", "repository": "https://github.com/facebook/react.git", "homepage": "https://react.dev/"},
+                {"package": "@types/node", "repository": "https://github.com/DefinitelyTyped/DefinitelyTyped.git", "homepage": None},
+                {"package": "mystery", "repository": None, "homepage": "https://www.mystery.dev/docs"},
+                {"package": "lonely", "repository": None, "homepage": "https://github.com/x/lonely#readme"}]
+        groups = ds.group_by_vendor(recs)
+        self.assertEqual(sorted(groups), ["DefinitelyTyped/DefinitelyTyped", "facebook/react", "lonely", "mystery.dev"])
+        self.assertEqual(groups["facebook/react"]["packages"], ["react", "react-dom"])
+        self.assertEqual(groups["facebook/react"]["repository"], "https://github.com/facebook/react")
+
+    def test_probe_and_discover_with_fakes(self):
+        import discover_sources as ds
+        def fake_fetch(url, timeout, limit=0):
+            if url.endswith("/releases.atom"):
+                return '<?xml version="1.0"?><feed xmlns="http://www.w3.org/2005/Atom"><entry/><entry/></feed>', url
+            if url == "https://acme.dev/":
+                return '<html><head><link rel="alternate" type="application/rss+xml" href="/changelog/rss.xml"></head>' \
+                       '<body><a href="/changelog">Changelog</a></body></html>', url
+            if url == "https://acme.dev/changelog/rss.xml":
+                return '<rss version="2.0"><channel/></rss>', url
+            raise ds.urllib.error.URLError("404")
+        def fake_json(url, timeout):
+            name = url.split("registry.npmjs.org/")[1].rsplit("/latest", 1)[0]
+            return {"acme-sdk": {"repository": "github:acme/acme-js", "homepage": "https://acme.dev/"},
+                    "@types/node": {"repository": "https://github.com/DefinitelyTyped/DefinitelyTyped.git"},
+                    "next": {"repository": "vercel/next.js"}}[name]
+        scan = {"items": [{"section": "key_package", "name": "acme-sdk", "version": "1.0.0"},
+                          {"section": "key_package", "name": "@types/node", "version": "22.0.0"},
+                          {"section": "framework", "name": "next", "version": "14.2.21"},
+                          {"section": "framework", "name": "Next.js config", "version": None}]}
+        existing = {"vendors": [{"vendor": "Next.js", "matches": ["next", "next.config.*"], "sources": [], "status": "verified"}]}
+        out = ds.discover(scan, existing, fetch=fake_fetch, fetch_json_fn=fake_json, today="2026-10-22")
+        self.assertEqual(out["already_covered"], ["next"])
+        self.assertEqual(out["errors"], [])
+        vendors = {v["vendor"]: v for v in out["vendors"]}
+        acme = vendors["acme-js"]
+        self.assertEqual(acme["matches"], ["acme-sdk"])
+        self.assertEqual(acme["status"], "unverified")
+        types = [s["type"] for s in acme["sources"]]
+        self.assertEqual(types, ["github-releases", "changelog"])
+        self.assertEqual(acme["sources"][0]["feed"], "https://github.com/acme/acme-js/releases.atom")
+        self.assertIn("2 release(s)", acme["sources"][0]["note"])
+        self.assertEqual(acme["sources"][1]["feed"], "https://acme.dev/changelog/rss.xml")
+        self.assertEqual(acme["sources"][1]["url"], "https://acme.dev/changelog")
+        self.assertEqual(vendors["DefinitelyTyped"]["sources"], [])  # type stubs are not a vendor
+
+
+class HeadlessTest(unittest.TestCase):
+    def test_build_digest(self):
+        import headless
+        filtered = {"new": [{"vendor": "next", "title": "critical severity: RCE | pipes", "url": "https://u1",
+                             "date": None, "source_type": "advisory"},
+                            {"vendor": "Vercel", "title": "Retention changes", "url": "https://u2",
+                             "date": "2026-10-09", "source_type": "changelog"}],
+                    "reshow": [{"vendor": "Neon", "title": "Free plan storage", "url": "https://u3",
+                                "date": "2026-10-02", "source_type": "changelog", "note": "previously watched"}],
+                    "dropped": 7}
+        feed = {"sources": [{"vendor": "Stripe", "url": "https://s", "status": "unparsed"},
+                            {"vendor": "Down", "url": "https://d", "status": "unreachable", "error": "HTTP 503"}]}
+        drift = {"added": [{"section": "Key packages", "item": "zod", "version": "4.0.0"}],
+                 "version_changed": [{"section": "Framework", "item": "next", "stack_md": "14.2.21", "repo": "15.5.28"}],
+                 "missing_first_time": [], "missing_second_time": [],
+                 "summary": {"added": 1, "version_changed": 1, "missing_first_time": 0, "missing_second_time": 0}}
+        md = headless.build_digest("app", "2026-10-01", "2026-10-22", filtered, feed,
+                                   drift, {"error": None}, {"errors": ["endoflife.date nuxt: HTTP 404"]})
+        self.assertTrue(md.startswith("# stack-watch: 2 new item(s) for app"))
+        self.assertIn("## Stack drift (2)", md)
+        self.assertIn("version changed: Framework / next 14.2.21 -> 15.5.28", md)
+        rows = [l for l in md.splitlines() if l.startswith("| ") and "|---" not in l and "Date" not in l]
+        self.assertEqual(len(rows), 3)
+        self.assertIn("advisory", rows[0])  # advisories sort first
+        self.assertIn("critical severity: RCE \\| pipes", rows[0])
+        self.assertIn("changelog (previously watched)", md)
+        self.assertIn("- Stripe: https://s", md)
+        self.assertIn("(HTTP 503)", md)
+        self.assertIn("- endoflife.date nuxt: HTTP 404", md)
+
+    def test_headless_requires_sources(self):
+        with tempfile.TemporaryDirectory() as d:
+            r = run("headless.py", d, "--out", os.path.join(d, "out"))
+            self.assertEqual(r.returncode, 1)
+            self.assertIn("run a bootstrap first", r.stdout)

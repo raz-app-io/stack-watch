@@ -192,6 +192,20 @@ Verification: every URL below was fetched directly on 2026-10-22 and returned th
 
 Advisories need no `sources.json` entry. Probe step 9 runs `scripts/audit.py`, which queries the OSV.dev database (and the package manager's own audit as a fallback) for every locked version. For a manual lookup, https://github.com/advisories accepts `?ecosystem=npm&query=<package>`.
 
+## Aggregators the scripts use
+
+These are not vendors; they are machine-readable databases the scripts query directly, so they need no `sources.json` entry.
+
+| Aggregator | Used by | What it answers | Limits |
+|---|---|---|---|
+| OSV.dev (https://osv.dev) | `audit.py` | Known vulnerabilities for an exact package version, across npm and most other ecosystems | None published; batch of 500 queries per request |
+| endoflife.date (https://endoflife.date) | `lifecycle.py` | End-of-life and support dates per release line for 480+ products, including nodejs, nextjs, react, vue, nuxt, svelte, angular, express, bun, electron, tailwind-css | Community-maintained; not every framework is listed (TypeScript is not) |
+| npm registry (https://registry.npmjs.org) | `lifecycle.py`, `discover_sources.py` | Deprecation flags per version, latest version, repository and homepage of a package | None for anonymous reads |
+| GitHub releases Atom feeds | `fetch_sources.py`, `discover_sources.py` | Release notes for any public repository, with no API quota | Prereleases are left out by default |
+| GitHub REST API | `fetch_sources.py` | Richer release bodies and the prerelease flag | 60 requests an hour unauthenticated; set `GITHUB_TOKEN` |
+
+Considered and not used: GitHub Advisory Database REST (same data as OSV, shares the 60/hour quota), deps.dev (same data as OSV plus the registry), newreleases.io (an account-based aggregator of GitHub, npm and PyPI releases; useful for email alerts, redundant here), Libraries.io (API key required).
+
 ## Unresolved
 
 Vendors whose public changelog could not be confirmed on 2026-10-22: none. Feeds that were looked for and do not exist: Supabase changelog RSS, PostHog changelog RSS, Stripe changelog RSS, Calendly developer RSS and Atom, Google Search Central `rss.xml`.

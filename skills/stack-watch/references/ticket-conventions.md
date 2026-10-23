@@ -1,6 +1,6 @@
 # Ticket conventions
 
-Read this before writing any ticket (probe step 16). The general rules apply to every tracker. The tracker sections say where those rules land in each tool. The tracker comes from `stack-watch/config.json` (`tracker.type`, `tracker.project`); default is `markdown`.
+Read this before writing any ticket (probe step 17). The general rules apply to every tracker. The tracker sections say where those rules land in each tool. The tracker comes from `stack-watch/config.json` (`tracker.type`, `tracker.project`); default is `markdown`.
 
 ## General rules
 

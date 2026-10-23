@@ -1,6 +1,6 @@
 # Severity rubric
 
-Read this when classifying probe items (probe step 11). Every non-Noise item goes forward to the proposal table. Noise is dropped and logged to the ledger as `auto-dismissed`.
+Read this when classifying probe items (probe step 12). Every non-Noise item goes forward to the proposal table. Noise is dropped and logged to the ledger as `auto-dismissed`.
 
 ## Severities
 

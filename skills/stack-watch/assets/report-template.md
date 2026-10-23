@@ -11,7 +11,7 @@
 | 3 | Repo | <repo path> |
 | 4 | Lookback window | <start date> to <run date> (<basis: first probe 90 days, or last_probed minus 3 days overlap>) |
 | 5 | Sources probed | <n> ok, <n> read directly (HTML), <n> skipped (retired or command), <n> unreachable; <n> prereleases left out |
-| 6 | Items collected | <n> collected (<n> from feeds, <n> read directly, <n> advisories), <n> new after ledger dedupe, <n> re-shown, <n> auto-dismissed as Noise, <n> proposed |
+| 6 | Items collected | <n> collected (<n> from feeds, <n> read directly, <n> advisories via <OSV.dev or package manager>, <n> lifecycle), <n> new after ledger dedupe, <n> re-shown, <n> auto-dismissed as Noise, <n> proposed |
 
 ## Stack drift since last scan
 
@@ -21,6 +21,16 @@
 |---|---|---|---|---|
 
 Git activity on dependency and config files since last scan: <n> commits by <authors>. <One sentence on what changed, or "none".>
+
+## Lifecycle
+
+<!-- The eol and versions tables from lifecycle.py. Keep the rows; add nothing. -->
+
+| # | Product | Pinned | Cycle | Status | End of life | Latest in cycle | Supported newer lines |
+|---|---|---|---|---|---|---|---|
+
+| # | Package | Pinned | Latest in major | Latest | Majors behind | Deprecated on npm |
+|---|---|---|---|---|---|---|
 
 ## Unverified sources needing review
 

@@ -12,7 +12,7 @@
       "name": "stack-watch",
       "source": "./",
       "description": "Probe vendor changelogs for changes that affect your stack and propose tickets.",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "license": "MIT"
     }
   ]

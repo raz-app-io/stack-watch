@@ -4557,6 +4557,48 @@
       "decision": "dismissed",
       "first_seen": "2026-10-22",
       "decided_on": "2026-10-22"
+    },
+    {
+      "vendor": "Node.js",
+      "title": "Node.js 20 reached end of life on 2026-04-30",
+      "url": "https://endoflife.date/nodejs",
+      "date": "2026-04-30",
+      "body": "Pinned 20.11.1; the 20 line reached end of life on 2026-04-30 and receives no security fixes after that. Latest 20.x release: 20.20.2. Supported newer lines: 26, 24, 22.",
+      "severity": "Deprecation",
+      "source_type": "end-of-life",
+      "source_status": "verified",
+      "prerelease": false,
+      "hash": "dcf0a63843438aa26914e9929f2b5bfd45025e05e2f011754f1f403610016265",
+      "first_seen": "2026-10-22",
+      "decision": "pending"
+    },
+    {
+      "vendor": "next",
+      "title": "next 14 reached end of life on 2025-10-26",
+      "url": "https://endoflife.date/nextjs",
+      "date": "2025-10-26",
+      "body": "Pinned 14.2.21; the 14 line reached end of life on 2025-10-26 and receives no security fixes after that. Latest 14.x release: 14.2.35. Supported newer lines: 16.",
+      "severity": "Deprecation",
+      "source_type": "end-of-life",
+      "source_status": "verified",
+      "prerelease": false,
+      "hash": "fe8cde53c6abb6ad8adb341a18ef90cadb70219c2f2699e633f84d9fd4cf21b0",
+      "first_seen": "2026-10-22",
+      "decision": "pending"
+    },
+    {
+      "vendor": "next",
+      "title": "next@14.2.21 is deprecated on npm: This version has a security vulnerability. Please upgrade to a patched version. See https://nextjs.o",
+      "url": "https://www.npmjs.com/package/next/v/14.2.21",
+      "date": null,
+      "body": "The npm registry marks next 14.2.21 deprecated: This version has a security vulnerability. Please upgrade to a patched version. See https://nextjs.org/blog/security-update-2025-12-11 for more details. Latest in the 14.x line: 14.2.35. Latest overall: 16.4.2.",
+      "severity": "Deprecation",
+      "source_type": "registry",
+      "source_status": "verified",
+      "prerelease": false,
+      "hash": "8b8c12d48693364ec8f9e67d848cd9a38d3f72d9943f1f62acbe29f06eb77f4c",
+      "first_seen": "2026-10-22",
+      "decision": "pending"
     }
   ]
 }

@@ -1,0 +1,72 @@
+# stack-watch scheduled probe.
+#
+# Copy this file to .github/workflows/stack-watch.yml in your repo after the
+# first bootstrap (it needs stack-watch/sources.json). Every Monday it runs
+# the deterministic half of a probe with no AI involved and, when there is
+# anything new, opens one issue labeled "stack-watch" (or comments on the
+# open one) with a digest. Classify and ticket by running /stack-watch in
+# Claude Code; the ledger is only written by that run, so the issue keeps
+# listing an item until someone decides on it.
+#
+# Set STACK_WATCH_REF to pin a stack-watch version (a tag such as v1.2.0).
+
+name: stack-watch
+
+on:
+  schedule:
+    - cron: "0 7 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+env:
+  STACK_WATCH_REF: main
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Fetch stack-watch
+        run: git clone --depth 1 --branch "$STACK_WATCH_REF" https://github.com/raz-app-io/stack-watch.git /tmp/stack-watch
+
+      - name: Probe
+        id: probe
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          set +e
+          mkdir -p /tmp/probe
+          python3 /tmp/stack-watch/skills/stack-watch/scripts/headless.py . --out /tmp/probe --pretty > /tmp/probe/summary.json
+          code=$?
+          cat /tmp/probe/summary.json
+          echo "exit=$code" >> "$GITHUB_OUTPUT"
+          if [ "$code" -ne 0 ] && [ "$code" -ne 3 ]; then exit "$code"; fi
+
+      - name: Open or update the stack-watch issue
+        if: steps.probe.outputs.exit == '3'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          gh label create stack-watch --description "Vendor changes found by stack-watch" --color 1D76DB --force
+          existing=$(gh issue list --label stack-watch --state open --json number --jq '.[0].number // empty')
+          if [ -n "$existing" ]; then
+            gh issue comment "$existing" --body-file /tmp/probe/digest.md
+          else
+            gh issue create --title "stack-watch: new vendor items ($(date -u +%F))" --label stack-watch --body-file /tmp/probe/digest.md
+          fi
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: stack-watch-probe
+          path: /tmp/probe
+          retention-days: 30

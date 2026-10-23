@@ -10,7 +10,7 @@ A worked example of every step below is in [samples/README.md](samples/README.md
 
 1. **Discovers your stack.** A deterministic scanner reads `package.json`, your lockfile (npm, pnpm, Yarn, bun), hosting and framework config, layout files for third-party script tags, and env var *names* (never values). A renderer writes a `STACK.md` at your repo root that every contributor can read and correct.
 2. **Detects drift.** Each run rescans, diffs against `STACK.md`, applies the changes, and summarizes git activity on dependency and config files since the last scan. A new package, a version bump, or a removed service from another contributor shows up in the report. Rows that disappear are flagged once and removed on the second consecutive miss.
-3. **Probes vendor sources.** A fetcher reads every RSS and Atom feed and GitHub releases source for the vendors in your stack, and runs your package manager's audit. HTML-only changelogs are read by Claude directly.
+3. **Probes vendor sources.** A fetcher reads every RSS and Atom feed and GitHub releases source for the vendors in your stack. Advisories come from OSV.dev for every locked version (no package manager needed); end-of-life dates from endoflife.date; deprecated or outdated pins from the npm registry. HTML-only changelogs are read by Claude directly.
 4. **Classifies and maps impact.** Each item is rated Security, Breaking, Deprecation, Pricing or limits, Opportunity, or Noise, and mapped to the files and routes it affects. A ledger remembers everything it has already shown you, so nothing is reported twice.
 5. **Proposes tickets and waits for you.** You get a ranked proposal table. Reply with item numbers to ticket, `W3` to watch, `D4` to dismiss. Tickets go to Asana, Linear, GitHub Issues, or a markdown file in the repo.
 
@@ -59,6 +59,10 @@ Or just ask: "Check for vendor updates that affect this project", "What changed 
 The first run is a **bootstrap**: it builds `STACK.md` and `stack-watch/sources.json`, then stops for you to confirm them and fill in the hand-confirmed section (services the scan can't see, such as DNS, email, or analytics accounts). Every later run is a **probe**.
 
 **Want to see it before running it?** [samples/README.md](samples/README.md) walks through one complete run: the generated STACK.md, the vendor sources, the report with its proposal table, the tickets, and the ledger. The input project is [examples/sample-next-app](examples/sample-next-app).
+
+## Scheduled probes without Claude
+
+[skills/stack-watch/assets/stack-watch.yml](skills/stack-watch/assets/stack-watch.yml) is a GitHub Actions workflow. Copy it to `.github/workflows/` after your first bootstrap. Every Monday it runs the deterministic half of a probe (`headless.py`: scan, drift, feeds, advisories, lifecycle, ledger dedupe) and, only when something is new, opens an issue labeled `stack-watch` with a digest. You then run `/stack-watch` to classify and ticket. The job never writes into your repo.
 
 ## Files it writes in your repo
 
@@ -109,11 +113,12 @@ Breaking, Deprecation, and Security items create a linked pair: a `RISK:` ticket
 - **JavaScript and TypeScript projects only** (npm, pnpm, Yarn, and bun). Python, Go, Ruby, and other ecosystems are not scanned yet. Monorepos are scanned at the root `package.json` only. Bun's binary `bun.lockb` yields declared ranges, not locked versions; the text `bun.lock` is fully supported.
 - **Public web sources only.** Vendors that announce sunsets only by email are not covered. Every report repeats this.
 - **Changelog quality varies.** Some vendors have no feed, and some change behavior without announcing it. Sources not in the built-in list are marked `unverified` until you confirm them.
+- **Lifecycle coverage.** endoflife.date tracks most runtimes and frameworks but not every library (TypeScript, Drizzle, Prisma are missing), so EOL items appear only for products it lists.
 - **GitHub API rate limit.** Release feeds are read through the GitHub API (60 requests an hour unauthenticated). Set `GITHUB_TOKEN` if you track many GitHub-hosted projects; the fetcher falls back to the public Atom feed when the API refuses.
 
 ## Built-in vendor sources
 
-Vercel, Netlify, Cloudflare, Next.js, React, Astro, Node.js, TypeScript, Tailwind CSS, Neon, Supabase, PlanetScale, Upstash, Drizzle ORM, Prisma, Firebase, Clerk, Auth.js, Auth0, Stripe, Resend, Google Analytics, Google Search Console, Sentry, PostHog, Calendly, and the npm advisory database. Every URL was fetched and checked. Other vendors are found by web search during bootstrap.
+Vercel, Netlify, Cloudflare, Next.js, React, Astro, Node.js, TypeScript, Tailwind CSS, Neon, Supabase, PlanetScale, Upstash, Drizzle ORM, Prisma, Firebase, Clerk, Auth.js, Auth0, Stripe, Resend, Google Analytics, Google Search Console, Sentry, PostHog, and Calendly, every URL fetched and checked. Any other npm dependency gets a source automatically: `discover_sources.py` reads its registry record for the GitHub repository (releases feed) and homepage (changelog feed autodiscovery). Advisories, end-of-life dates, and deprecations come from OSV.dev, endoflife.date, and the npm registry.
 
 ### Adding a vendor
 
@@ -128,7 +133,8 @@ skills/stack-watch/
   SKILL.md               the skill instructions Claude follows
   references/            STACK.md template, vendor sources, severity rubric, ticket conventions
   assets/                report and tickets.md templates
-  scripts/               scan_repo, render_stack, diff_stack, fetch_sources, audit, ledger
+  scripts/               scan_repo, render_stack, diff_stack, fetch_sources, audit, lifecycle,
+                         discover_sources, ledger, headless
 examples/sample-next-app a small Next.js project the samples and tests run against
 samples/                 one complete run's output (STACK.md, sources, report, tickets, ledger) with a walkthrough
 tests/                   unit tests for the scripts (Python 3.9+, standard library only)
@@ -146,7 +152,9 @@ The scripts can be run directly. Against the sample project:
 python3 skills/stack-watch/scripts/scan_repo.py examples/sample-next-app --pretty > /tmp/scan.json
 python3 skills/stack-watch/scripts/diff_stack.py /tmp/scan.json samples/STACK.md --pretty
 python3 skills/stack-watch/scripts/fetch_sources.py samples/sources.json --since 2026-10-01 --pretty
-python3 skills/stack-watch/scripts/audit.py --input tests/fixtures/audit_npm7.json --pretty
+python3 skills/stack-watch/scripts/audit.py examples/sample-next-app --pretty          # OSV.dev, no npm needed
+python3 skills/stack-watch/scripts/lifecycle.py /tmp/scan.json --pretty
+python3 skills/stack-watch/scripts/discover_sources.py /tmp/scan.json --existing samples/sources.json --pretty
 ```
 
 Each script's docstring documents its arguments and output.

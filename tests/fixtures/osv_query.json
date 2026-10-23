@@ -1,0 +1,27 @@
+{
+  "package": "drizzle-orm", "version": "0.38.3",
+  "vulns": [
+    {
+      "id": "GHSA-gpj5-g38j-94v9",
+      "summary": "Drizzle ORM has SQL injection via improperly escaped SQL identifiers",
+      "aliases": ["CVE-2024-99999"],
+      "database_specific": {"severity": "HIGH"},
+      "affected": [
+        {"package": {"ecosystem": "npm", "name": "drizzle-orm"},
+         "ranges": [{"type": "ECOSYSTEM", "events": [{"introduced": "0"}, {"fixed": "0.45.2"}]},
+                    {"type": "ECOSYSTEM", "events": [{"introduced": "1.0.0-beta.2"}, {"fixed": "1.0.0-beta.20"}]}]}
+      ],
+      "references": [{"type": "ADVISORY", "url": "https://github.com/advisories/GHSA-gpj5-g38j-94v9"}]
+    },
+    {
+      "id": "MAL-2026-0001",
+      "summary": "Malicious code in drizzle-orm (fictional fixture)",
+      "aliases": ["GHSA-aaaa-bbbb-cccc"],
+      "affected": [
+        {"package": {"ecosystem": "npm", "name": "drizzle-orm"},
+         "ranges": [{"type": "ECOSYSTEM", "events": [{"introduced": "0.38.0"}, {"last_affected": "0.38.9"}]}]}
+      ],
+      "references": [{"type": "WEB", "url": "https://example.com/mal"}]
+    }
+  ]
+}

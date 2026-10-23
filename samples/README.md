@@ -93,6 +93,18 @@ The real table also has Definition of done, Source, Confidence, and Created colu
 
 With `asana`, `linear`, or `github` in [config.json](config.json), the same tickets go to that tracker instead.
 
+## 4b. Lifecycle signals
+
+Two checks need no changelog at all. `lifecycle.py` asks endoflife.date for the pinned release line of each runtime and framework, and the npm registry for the state of each pinned version. From the sample:
+
+| Product | Pinned | Status | End of life | Supported newer lines |
+|---|---|---|---|---|
+| Node.js | 20.11.1 | end-of-life | 2026-04-30 | 26, 24, 22 |
+| next | 14.2.21 | end-of-life | 2025-10-26 | 16 |
+| react | 18.3.1 | supported | none stated | 19 |
+
+The registry also says `next@14.2.21` is deprecated ("This version has a security vulnerability") and that `stripe` 17.5.0 is six majors behind. Each end-of-life or deprecated pin becomes a Deprecation item; the version table goes into the report as context. The full tables are in the [report](report-2026-10-22.md).
+
 ## 5. Memory: ledger.json
 
 The ledger is why the next probe will not show you these 375 items again. Each item is hashed on vendor, URL, and title, and carries your decision:
