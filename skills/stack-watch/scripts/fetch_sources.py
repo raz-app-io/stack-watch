@@ -50,8 +50,11 @@ CONTENT_NS = "{http://purl.org/rss/1.0/modules/content/}"
 DC_NS = "{http://purl.org/dc/elements/1.1/}"
 GITHUB_RELEASES_RE = re.compile(
     r"^https?://github\.com/([\w.-]+)/([\w.-]+)/releases(?:\.atom)?/?$")
+# Version-shaped only ("v16.5.0-canary.3", "2.0.0-beta.1", "rc2"), so a prose
+# title like "Realtime in public beta" is left for the rubric to judge.
 PRERELEASE_RE = re.compile(
-    r"(canary|alpha|beta|rc[.\-]?\d*|next\.\d|preview|nightly|experimental)\b", re.I)
+    r"\d-(?:canary|alpha|beta|rc|next|preview|nightly|experimental|dev)\b"
+    r"|\b(?:canary|alpha|beta|rc)[.\-]?\d", re.I)
 REDIRECT_CODES = {301, 302, 303, 307, 308}
 TAG_RE = re.compile(r"<[^>]+>")
 WS_RE = re.compile(r"\s+")
@@ -67,7 +70,10 @@ def fetch(url, timeout, headers=None, _hops=0):
         # Python < 3.11 does not follow 308 on its own.
         target = e.headers.get("Location") if e.headers else None
         if e.code in REDIRECT_CODES and target and _hops < 5:
-            return fetch(urllib.parse.urljoin(url, target), timeout, headers, _hops + 1)
+            new_url = urllib.parse.urljoin(url, target)
+            if urllib.parse.urlsplit(new_url).scheme not in ("http", "https"):
+                raise urllib.error.URLError(f"refusing redirect to {new_url[:60]}")
+            return fetch(new_url, timeout, headers, _hops + 1)
         raise
 
 
@@ -107,7 +113,7 @@ def text_of(el, *names):
     return ""
 
 
-def parse_feed(xml_text, vendor, source, max_body=2000):
+def parse_feed(xml_text, vendor, source, max_body=1500):
     """Parse RSS 2.0 or Atom into items. Raises ET.ParseError on bad XML."""
     root = ET.fromstring(xml_text)
     items = []
@@ -145,7 +151,7 @@ def parse_feed(xml_text, vendor, source, max_body=2000):
     return items
 
 
-def parse_github_releases(releases, vendor, source, max_body=2000):
+def parse_github_releases(releases, vendor, source, max_body=1500):
     items = []
     for r in releases:
         if r.get("draft"):
@@ -205,7 +211,7 @@ def fetch_source(vendor, source, timeout, max_body):
         return [], "unreachable", str(e)[:200], url
 
 
-def collect(sources_doc, since, timeout=20, max_body=2000, fetcher=fetch_source,
+def collect(sources_doc, since, timeout=20, max_body=1500, fetcher=fetch_source,
             include_prereleases=False):
     """Fetch everything in a sources.json document. `fetcher` is injectable
     for tests. Returns the output document."""

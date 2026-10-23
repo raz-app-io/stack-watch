@@ -106,14 +106,18 @@ Breaking, Deprecation, and Security items create a linked pair: a `RISK:` ticket
 
 ## Limitations
 
-- **JavaScript and TypeScript projects only** (npm, pnpm, Yarn, and bun). Python, Go, Ruby, and other ecosystems are not scanned yet. Monorepos are scanned at the root `package.json` only.
+- **JavaScript and TypeScript projects only** (npm, pnpm, Yarn, and bun). Python, Go, Ruby, and other ecosystems are not scanned yet. Monorepos are scanned at the root `package.json` only. Bun's binary `bun.lockb` yields declared ranges, not locked versions; the text `bun.lock` is fully supported.
 - **Public web sources only.** Vendors that announce sunsets only by email are not covered. Every report repeats this.
 - **Changelog quality varies.** Some vendors have no feed, and some change behavior without announcing it. Sources not in the built-in list are marked `unverified` until you confirm them.
 - **GitHub API rate limit.** Release feeds are read through the GitHub API (60 requests an hour unauthenticated). Set `GITHUB_TOKEN` if you track many GitHub-hosted projects; the fetcher falls back to the public Atom feed when the API refuses.
 
 ## Built-in vendor sources
 
-Vercel, Netlify, Cloudflare, Next.js, React, Astro, Node.js, TypeScript, Tailwind CSS, Neon, Supabase, PlanetScale, Upstash, Drizzle ORM, Prisma, Firebase, Clerk, Auth.js, Auth0, Stripe, Resend, Google Analytics, Google Search Console, Sentry, PostHog, Calendly, and the npm advisory database. Every URL was fetched and checked. Other vendors are found by web search during bootstrap. Pull requests that add or correct entries in [vendor-sources.md](skills/stack-watch/references/vendor-sources.md) are welcome.
+Vercel, Netlify, Cloudflare, Next.js, React, Astro, Node.js, TypeScript, Tailwind CSS, Neon, Supabase, PlanetScale, Upstash, Drizzle ORM, Prisma, Firebase, Clerk, Auth.js, Auth0, Stripe, Resend, Google Analytics, Google Search Console, Sentry, PostHog, Calendly, and the npm advisory database. Every URL was fetched and checked. Other vendors are found by web search during bootstrap.
+
+### Adding a vendor
+
+Pull requests to [vendor-sources.md](skills/stack-watch/references/vendor-sources.md) are welcome. For each source: fetch the URL yourself and confirm it returns the changelog (for a feed, that the response starts with `<rss` or `<feed`); prefer the vendor's own domain; prefer a feed over an HTML page; record the date you checked in the entry. If the vendor's feed mixes a blog with its changelog, note the `url_filter` that separates them. A GitHub releases page counts as a feed.
 
 ## Repository layout
 

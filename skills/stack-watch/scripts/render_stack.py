@@ -26,6 +26,7 @@ import fnmatch
 import json
 import os
 import re
+import subprocess
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -148,7 +149,7 @@ def merge_rows(section, scan_rows, existing_rows, today):
         old = existing_rows.get(key)
         if old:
             for col in cols:
-                if col in KEEP_EXISTING and cell(old, col):
+                if col in KEEP_EXISTING and col != key_col and cell(old, col):
                     row[col] = cell(old, col)
         out.append(row)
     for key, old in existing_rows.items():
@@ -206,6 +207,23 @@ def default_hand_section():
         HAND_SECTION, HAND_NOTE, table(HAND_COLUMNS, [HAND_PROMPT_ROW]))
 
 
+def relative_repo_path(abs_path):
+    """Path of the scanned repo relative to its git toplevel ("." at the root),
+    so STACK.md never records a contributor's home directory. Falls back to
+    the directory name when git is unavailable."""
+    if not abs_path:
+        return "."
+    try:
+        top = subprocess.run(["git", "-C", abs_path, "rev-parse", "--show-toplevel"],
+                             capture_output=True, text=True, timeout=10)
+        if top.returncode == 0 and top.stdout.strip():
+            rel = os.path.relpath(os.path.realpath(abs_path), os.path.realpath(top.stdout.strip()))
+            return rel.replace(os.sep, "/")
+    except (OSError, subprocess.SubprocessError):
+        pass
+    return os.path.basename(abs_path.rstrip("/")) or "."
+
+
 def render(scan, existing_text=None, project=None, today=None, repo_path=None):
     today = today or datetime.date.today().isoformat()
     existing = diff_stack.parse_stack_md_text(existing_text) if existing_text else {}
@@ -216,8 +234,10 @@ def render(scan, existing_text=None, project=None, today=None, repo_path=None):
         if section:
             scan_rows.setdefault(section, {})[diff_stack.norm(item["name"])] = item
 
-    repo_path = repo_path or scan.get("repo_path") or fm.get("repo_path", "")
-    project = project or fm.get("project") or os.path.basename(repo_path.rstrip("/")) or "project"
+    scan_path = scan.get("repo_path", "")
+    repo_path = repo_path or fm.get("repo_path") or relative_repo_path(scan_path)
+    project = (project or fm.get("project")
+               or os.path.basename(scan_path.rstrip("/")) or "project")
     parts = ["---",
              f"project: {project}",
              f"repo_path: {repo_path}",
@@ -242,7 +262,8 @@ def main():
     ap.add_argument("--existing", help="current STACK.md to merge into")
     ap.add_argument("--out", help="write here instead of stdout")
     ap.add_argument("--project", help="project name for the frontmatter")
-    ap.add_argument("--repo-path", help="repo_path for the frontmatter (default: from the scan)")
+    ap.add_argument("--repo-path", help="repo_path for the frontmatter (default: the existing "
+                    "value, else the scanned directory relative to its git toplevel)")
     args = ap.parse_args()
 
     try:

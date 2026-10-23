@@ -326,6 +326,12 @@ class LedgerTest(unittest.TestCase):
                 stdin=json.dumps({"vendor": "A", "url": "u", "title": "t", "decision": "maybe"}))
         self.assertNotEqual(r.returncode, 0)
 
+    def test_cli_errors_are_one_line(self):
+        r = run("ledger.py", self.path, "set-decision", "nope", "ticketed")
+        self.assertEqual(r.returncode, 1)
+        self.assertIn("error: 'hash not in ledger: nope'", r.stderr)
+        self.assertNotIn("Traceback", r.stderr)
+
     def test_last_probed(self):
         self.assertEqual(self.ledger("last-probed"), "null")
         self.ledger("record-run", "bootstrap", "null", "0", "0")

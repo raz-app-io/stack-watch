@@ -39,6 +39,9 @@ import sys
 
 SCHEMA_VERSION = 1
 BODY_KEEP = 200  # characters of an item's body kept in the ledger
+# Noise entries keep only what dedupe and audit need; the report has the rest.
+NOISE_FIELDS = {"hash", "vendor", "title", "url", "date", "severity", "decision",
+                "first_seen", "source_type"}
 DECISIONS = {"ticketed", "watch", "dismissed", "auto-dismissed", "pending"}
 
 
@@ -54,20 +57,21 @@ def load(path):
         return json.load(f)
 
 
+def find(data, h):
+    index = data.get("_index")
+    if index is None:
+        index = data["_index"] = {i.get("hash"): i for i in data["items"]}
+    return index.get(h)
+
+
 def save(path, data):
+    data = {k: v for k, v in data.items() if k != "_index"}
     os.makedirs(os.path.dirname(os.path.abspath(path)), exist_ok=True)
     tmp = path + ".tmp"
     with open(tmp, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=2, ensure_ascii=False)
         f.write("\n")
     os.replace(tmp, path)
-
-
-def find(data, h):
-    for item in data["items"]:
-        if item.get("hash") == h:
-            return item
-    return None
 
 
 def seen(path, h):
@@ -84,11 +88,15 @@ def _add_to(data, item):
         return existing
     item.setdefault("first_seen", datetime.date.today().isoformat())
     item.setdefault("decision", "pending")
-    if isinstance(item.get("body"), str) and len(item["body"]) > BODY_KEEP:
-        item["body"] = item["body"][:BODY_KEEP].rstrip() + "..."  # the report holds the full text
     if item["decision"] not in DECISIONS:
         raise ValueError(f"unknown decision: {item['decision']}")
+    if item["decision"] == "auto-dismissed":
+        item = {k: v for k, v in item.items() if k in NOISE_FIELDS}
+    elif isinstance(item.get("body"), str) and len(item["body"]) > BODY_KEEP:
+        item["body"] = item["body"][:BODY_KEEP].rstrip() + "..."  # the report holds the full text
     data["items"].append(item)
+    find(data, None)  # make sure the index exists before updating it
+    data["_index"][item["hash"]] = item
     return item
 
 
@@ -177,7 +185,17 @@ def main():
     if len(sys.argv) < 3:
         print(__doc__)
         sys.exit(2)
-    path, cmd, rest = sys.argv[1], sys.argv[2], sys.argv[3:]
+    try:
+        run_cli(sys.argv[1], sys.argv[2], sys.argv[3:])
+    except (KeyError, ValueError, IndexError) as e:
+        print(f"error: {e}", file=sys.stderr)
+        sys.exit(1)
+    except json.JSONDecodeError as e:
+        print(f"error: invalid JSON on stdin: {e}", file=sys.stderr)
+        sys.exit(1)
+
+
+def run_cli(path, cmd, rest):
     if cmd == "hash":
         print(item_hash(*rest))
     elif cmd == "seen":

@@ -55,7 +55,7 @@ Vendors are added only when the scan finds them. The sample has ten: Vercel, Nex
 
 ## 3. Probe: the report
 
-The probe rescans the repo, diffs it against STACK.md, fetches every source for the lookback window (90 days on the first run, then since the last probe), runs `npm audit`, drops everything already in the ledger, classifies what is left, and writes a report. The sample run collected **375 items**, dismissed **315** as Noise, and proposed **7**.
+The probe rescans the repo, diffs it against STACK.md, fetches every source for the lookback window (90 days on the first run, then from three days before the last probe), runs `npm audit`, drops everything already in the ledger, classifies what is left, and writes a report. The sample run collected **375 items**, dismissed **315** as Noise, and proposed **7**.
 
 | # | Vendor | Severity | Change | Proposed action | Effort | Deadline | Confidence |
 |---|---|---|---|---|---|---|---|
@@ -120,6 +120,13 @@ Decisions: `ticketed`, `watch` (shown again next run), `dismissed`, `auto-dismis
 - **Only the stack is tracked.** Ten vendors were found, so ten were probed. Clerk, Supabase, and the other 17 vendors the skill knows about were ignored because the project does not use them.
 - **Noise is kept out of your way, but kept.** 252 of the 256 Vercel changelog posts were AI Gateway model launches and features this project does not use. They are in the ledger as `auto-dismissed` and summarized in one paragraph of the report.
 - **The first run is the big one.** 90 days of feeds is several hundred items. A weekly or monthly probe is a few dozen.
+
+## Notes from this run for stack-watch maintainers
+
+1. Vercel's single Atom feed mixes blog and changelog and uses `<content type="xhtml">`; both the `url_filter` and the xhtml parsing in `fetch_sources.py` came out of this run.
+2. `npm audit` reports one item per advisory; 33 of 34 pointed at the same `next` upgrade. Grouping advisories by package into one proposal is now a rule in SKILL.md.
+3. Node.js release feed entries have no body; the security post had to be read directly.
+4. A first 90-day probe of a 13-dependency project produced 339 feed items, 256 of them from Vercel.
 
 ## Reproduce it
 

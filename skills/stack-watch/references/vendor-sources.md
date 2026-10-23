@@ -88,7 +88,7 @@ Verification: every URL below was fetched directly on 2026-10-22 and returned th
 
 ### Neon
 
-- matches: `@neondatabase/*`, `DATABASE_URL` pointing at neon.tech
+- matches: `@neondatabase/*` (the scan never reads env values, so a `DATABASE_URL` name alone does not identify Neon)
 - source: type changelog, url https://neon.com/docs/changelog, feed https://neon.com/docs/changelog/rss.xml (RSS)
 
 ### Supabase
@@ -190,13 +190,7 @@ Verification: every URL below was fetched directly on 2026-10-22 and returned th
 
 ## Package advisories
 
-### npm ecosystem
-
-- matches: any `package.json` project
-- source 1: type advisories, command `python3 scripts/audit.py <repo>` (runs the package manager's audit for the detected lockfile; no URL)
-- source 2: type advisories, url https://github.com/advisories, feed null (query per package when a pinned package needs a manual lookup)
-
-Represent this vendor in `sources.json` with a single source `{"type": "advisories", "command": "audit.py", "url": null, "feed": null}`. The fetcher skips it; probe step 9 runs it.
+Advisories need no `sources.json` entry. Probe step 9 runs `scripts/audit.py`, which queries the OSV.dev database (and the package manager's own audit as a fallback) for every locked version. For a manual lookup, https://github.com/advisories accepts `?ecosystem=npm&query=<package>`.
 
 ## Unresolved
 

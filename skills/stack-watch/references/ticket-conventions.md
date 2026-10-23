@@ -38,7 +38,14 @@ Tickets are rows in one table in `stack-watch/tickets.md` in the target repo. If
 
 Cells cannot contain line breaks or unescaped `|`. The "URL" recorded in the ledger is `stack-watch/tickets.md#SW-001` (the ID after the hash). Rule 9 note for this tracker: when the vendor date minus 14 days is already in the past, use the vendor date itself.
 
-See `samples/tickets.md` in the stack-watch repository for a filled example with two linked pairs and one single work ticket.
+A linked pair looks like this (two of the eleven columns omitted for width):
+
+| ID | Status | Title | Severity | Effort | Due | Linked |
+|---|---|---|---|---|---|---|
+| SW-003 | open | Move the runtime to Node.js 24 LTS | Security | S | | SW-004 |
+| SW-004 | open | RISK: Node.js 20 is end-of-life and unpatched for the October 2026 High CVEs | Security | | | SW-003 |
+
+The full file with definitions of done is `samples/tickets.md` in the stack-watch repository.
 
 ## Tracker: asana
 

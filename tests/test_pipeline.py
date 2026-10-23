@@ -115,6 +115,23 @@ class RenderStackTest(unittest.TestCase):
         self.assertIn("| Cloudflare DNS |", third)
         self.assertIn("project: app\n", third)
 
+    def test_repo_path_is_never_absolute_and_is_preserved(self):
+        fresh = render_stack.render(SCAN)
+        self.assertNotIn("/x/app", fresh)
+        self.assertRegex(fresh, r"repo_path: (app|\.)\n")
+        existing = fresh.replace("project: app", "project: My App").replace(
+            "repo_path: app", "repo_path: apps/web").replace("repo_path: .", "repo_path: apps/web")
+        merged = render_stack.render(SCAN, existing_text=existing)
+        self.assertIn("project: My App\nrepo_path: apps/web\n", merged)
+
+    def test_inferred_hosting_label_is_replaced_once_config_appears(self):
+        inferred = dict(SCAN, items=[dict(i, name="Vercel (inferred)") if i["name"] == "Vercel" else i
+                                     for i in SCAN["items"]])
+        first = render_stack.render(inferred).replace("| Vercel (inferred) | unknown |", "| Vercel (inferred) | Pro |")
+        second = render_stack.render(SCAN, existing_text=first)
+        self.assertIn("| Vercel | Pro | vercel.json |", second)
+        self.assertNotIn("(inferred)", second)
+
     def test_cli_writes_file(self):
         sp = os.path.join(self.tmp.name, "scan.json")
         out = os.path.join(self.tmp.name, "STACK.md")
@@ -183,6 +200,14 @@ class FetchSourcesTest(unittest.TestCase):
         self.assertEqual([i["title"] for i in items], ["v15.0.0", "v15.1.0-canary.3", "v16.0.0-beta.1"])
         self.assertEqual([i["prerelease"] for i in items], [False, True, True])
         self.assertEqual(items[0]["body"], "# Notes")
+
+    def test_prerelease_regex_is_version_shaped(self):
+        rx = fetch_sources.PRERELEASE_RE
+        for t in ["v16.5.0-canary.24", "2.0.0-beta.1", "v3.0.0-rc.2", "1.0.0-next.5", "rc2 of 4.0"]:
+            self.assertTrue(rx.search(t), t)
+        for t in ["Neon Realtime in public beta", "Step 5 Preview now available", "Vercel Daemons is now in public beta",
+                  "Canary deployments explained", "v15.0.0"]:
+            self.assertFalse(rx.search(t), t)
 
     def test_parse_date(self):
         pd = fetch_sources.parse_date
@@ -313,8 +338,12 @@ class LedgerFilterTest(unittest.TestCase):
                      {"vendor": "A", "url": "u3", "title": "t3", "decision": "pending"},
                      {"vendor": "A", "url": "u4", "title": "t4", "decision": "auto-dismissed"}]
             prior[0]["body"] = "x" * 500
+            prior[3]["body"] = "noise body that should not be stored"
             ledger.add_many(path, prior)
-            self.assertEqual(len(json.load(open(path))["items"][0]["body"]), 203)
+            with open(path) as f:
+                stored = json.load(f)["items"]
+            self.assertEqual(len(stored[0]["body"]), 203)
+            self.assertNotIn("body", stored[3])  # auto-dismissed entries are compact
             incoming = [{"vendor": "A", "url": f"u{n}", "title": f"t{n}"} for n in range(1, 6)]
             r = run("ledger.py", path, "filter", stdin=json.dumps({"items": incoming}))
             self.assertEqual(r.returncode, 0, r.stderr)
@@ -333,12 +362,11 @@ class SampleProjectTest(unittest.TestCase):
     def test_sample_stack_md_has_no_drift(self):
         scan = run("scan_repo.py", EXAMPLE)
         self.assertEqual(scan.returncode, 0, scan.stderr)
-        with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False) as f:
-            f.write(scan.stdout)
-        try:
-            r = run("diff_stack.py", f.name, os.path.join(SAMPLES, "STACK.md"))
-        finally:
-            os.unlink(f.name)
+        with tempfile.TemporaryDirectory() as d:
+            scan_path = os.path.join(d, "scan.json")
+            with open(scan_path, "w") as f:
+                f.write(scan.stdout)
+            r = run("diff_stack.py", scan_path, os.path.join(SAMPLES, "STACK.md"))
         self.assertEqual(r.returncode, 0, r.stdout)
         items = {i["name"]: i for i in json.loads(scan.stdout)["items"]}
         self.assertEqual(items["next"]["version"], "14.2.21")
