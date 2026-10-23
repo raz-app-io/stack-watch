@@ -134,9 +134,10 @@
       "hash": "82dd1af955c1e1603026c45a59ea28b4e9ef56c82612e7e76a0ba208d510610d",
       "severity": "Security",
       "proposal": 1,
-      "decision": "dismissed",
+      "decision": "ticketed",
       "first_seen": "2026-10-22",
-      "decided_on": "2026-10-22"
+      "decided_on": "2026-10-22",
+      "ticket_url": "stack-watch/tickets.md#SW-001"
     },
     {
       "title": "WebSocket support is now generally available",
@@ -570,9 +571,10 @@
       "hash": "56a3efb2e65f6670c29a9a416ca8ad22b74abf6a95e2f21d6c3bce5ebf334a17",
       "severity": "Security",
       "proposal": 2,
-      "decision": "dismissed",
+      "decision": "ticketed",
       "first_seen": "2026-10-22",
-      "decided_on": "2026-10-22"
+      "decided_on": "2026-10-22",
+      "ticket_url": "stack-watch/tickets.md#SW-003"
     },
     {
       "vendor": "Next.js",
@@ -586,9 +588,10 @@
       "hash": "3cc69704dee2d5345601f20c18c05aa8c6e69e3472a88a732d784faad9eae8eb",
       "severity": "Security",
       "proposal": 2,
-      "decision": "dismissed",
+      "decision": "ticketed",
       "first_seen": "2026-10-22",
-      "decided_on": "2026-10-22"
+      "decided_on": "2026-10-22",
+      "ticket_url": "stack-watch/tickets.md#SW-003"
     },
     {
       "title": "Next.js Security Update for Upstream Vulnerabilities",
@@ -602,9 +605,10 @@
       "hash": "929971f4de4cf5ecd9ddaac4c4ce0f038df4ec7ce92dd7f22bb5b13d7902bab3",
       "severity": "Security",
       "proposal": 2,
-      "decision": "dismissed",
+      "decision": "ticketed",
       "first_seen": "2026-10-22",
-      "decided_on": "2026-10-22"
+      "decided_on": "2026-10-22",
+      "ticket_url": "stack-watch/tickets.md#SW-003"
     },
     {
       "title": "Drama 3 now available on AI Gateway",
@@ -702,9 +706,10 @@
       "hash": "392db76b6d4ead16df83b25f3f40e66b8647712b6eb949e23ec732b6f87e7dba",
       "severity": "Pricing or limits",
       "proposal": 4,
-      "decision": "dismissed",
+      "decision": "ticketed",
       "first_seen": "2026-10-22",
-      "decided_on": "2026-10-22"
+      "decided_on": "2026-10-22",
+      "ticket_url": "stack-watch/tickets.md#SW-007"
     },
     {
       "title": "Deployment Storage billing begins for existing Pro teams",
@@ -718,9 +723,10 @@
       "hash": "350de3257d8e6ac48884d68441106db1318b055133c7a05d0a86fdee2a2563aa",
       "severity": "Pricing or limits",
       "proposal": 4,
-      "decision": "dismissed",
+      "decision": "ticketed",
       "first_seen": "2026-10-22",
-      "decided_on": "2026-10-22"
+      "decided_on": "2026-10-22",
+      "ticket_url": "stack-watch/tickets.md#SW-007"
     },
     {
       "title": "Microsoft Decision-1 now available on AI Gateway",
@@ -874,9 +880,10 @@
       "hash": "bd35963a8713e77fd8306555daf538a4766eae9b8fe9dcac7972b8fb727046d9",
       "severity": "Security",
       "proposal": 3,
-      "decision": "dismissed",
+      "decision": "ticketed",
       "first_seen": "2026-10-22",
-      "decided_on": "2026-10-22"
+      "decided_on": "2026-10-22",
+      "ticket_url": "stack-watch/tickets.md#SW-005"
     },
     {
       "title": "Microfrontends Routing is now free for Firewall-mitigated traffic",
@@ -1244,9 +1251,10 @@
       "hash": "3448fb31ea3ee9ccc850b4b0b42d55ea829abcb9ea603a9f162e9466fb8f8de7",
       "severity": "Security",
       "proposal": 2,
-      "decision": "dismissed",
+      "decision": "ticketed",
       "first_seen": "2026-10-22",
-      "decided_on": "2026-10-22"
+      "decided_on": "2026-10-22",
+      "ticket_url": "stack-watch/tickets.md#SW-003"
     },
     {
       "vendor": "Next.js",
@@ -1260,9 +1268,10 @@
       "hash": "9737d39c36f2a676a25453192f6130de43e193d2421a34e77e09b82d2c58406a",
       "severity": "Security",
       "proposal": 2,
-      "decision": "dismissed",
+      "decision": "ticketed",
       "first_seen": "2026-10-22",
-      "decided_on": "2026-10-22"
+      "decided_on": "2026-10-22",
+      "ticket_url": "stack-watch/tickets.md#SW-003"
     },
     {
       "title": "September 2026 Security Release",
@@ -1276,9 +1285,10 @@
       "hash": "f64c9a11b3d703bebbfdea0924632cae7254cea7828d3f1a9477f8438079e7da",
       "severity": "Security",
       "proposal": 2,
-      "decision": "dismissed",
+      "decision": "ticketed",
       "first_seen": "2026-10-22",
-      "decided_on": "2026-10-22"
+      "decided_on": "2026-10-22",
+      "ticket_url": "stack-watch/tickets.md#SW-003"
     },
     {
       "title": "Vercel Connect now accepts service submissions",
@@ -1558,9 +1568,10 @@
       "hash": "e7a987f6a25aaa94a00f43aa90cc0a115e0fe039846af8944519649cd05015e0",
       "severity": "Security",
       "proposal": 2,
-      "decision": "dismissed",
+      "decision": "ticketed",
       "first_seen": "2026-10-22",
-      "decided_on": "2026-10-22"
+      "decided_on": "2026-10-22",
+      "ticket_url": "stack-watch/tickets.md#SW-003"
     },
     {
       "vendor": "Next.js",
@@ -1574,9 +1585,10 @@
       "hash": "6877e5cd653c75b7f2ab44abb7b0e782f21f10e39e259be9f14285b86b268e17",
       "severity": "Security",
       "proposal": 2,
-      "decision": "dismissed",
+      "decision": "ticketed",
       "first_seen": "2026-10-22",
-      "decided_on": "2026-10-22"
+      "decided_on": "2026-10-22",
+      "ticket_url": "stack-watch/tickets.md#SW-003"
     },
     {
       "title": "Next.js Security Update for a Critical Upstream Issue",
@@ -1590,9 +1602,10 @@
       "hash": "f4ce2364ec6081da6c79254c224b49d3de0b80c7026e744c893eaacad91a3dae",
       "severity": "Security",
       "proposal": 2,
-      "decision": "dismissed",
+      "decision": "ticketed",
       "first_seen": "2026-10-22",
-      "decided_on": "2026-10-22"
+      "decided_on": "2026-10-22",
+      "ticket_url": "stack-watch/tickets.md#SW-003"
     },
     {
       "title": "Upcoming Next.js Security Update for a Critical Upstream Issue",
@@ -1872,9 +1885,10 @@
       "hash": "814f60b4704b1a4a5bf95617350d20446bd7bb6f6cb9e82e41a1b74ab9cedd63",
       "severity": "Pricing or limits",
       "proposal": 4,
-      "decision": "dismissed",
+      "decision": "ticketed",
       "first_seen": "2026-10-22",
-      "decided_on": "2026-10-22"
+      "decided_on": "2026-10-22",
+      "ticket_url": "stack-watch/tickets.md#SW-007"
     },
     {
       "title": "Secure Compute and Static IP builds start 64% faster",
@@ -2856,9 +2870,10 @@
       "hash": "9c54019a1fb6d9d06dcb91886e152f8c862419bbfec5f2c6754ac44f65a51fd1",
       "severity": "Security",
       "proposal": 2,
-      "decision": "dismissed",
+      "decision": "ticketed",
       "first_seen": "2026-10-22",
-      "decided_on": "2026-10-22"
+      "decided_on": "2026-10-22",
+      "ticket_url": "stack-watch/tickets.md#SW-003"
     },
     {
       "title": "Speed Insights now has a free tier",
@@ -2998,9 +3013,10 @@
       "hash": "9f3396b89bb7e7b1eb28603167af8b4713a051996dc730ef1769463b83b3ca7c",
       "severity": "Security",
       "proposal": 2,
-      "decision": "dismissed",
+      "decision": "ticketed",
       "first_seen": "2026-10-22",
-      "decided_on": "2026-10-22"
+      "decided_on": "2026-10-22",
+      "ticket_url": "stack-watch/tickets.md#SW-003"
     },
     {
       "vendor": "Next.js",
@@ -3014,9 +3030,10 @@
       "hash": "b40c663cfd32ca2587d5c984a29b50a7c2c18b07ff4bce64406cf1a68385baff",
       "severity": "Security",
       "proposal": 2,
-      "decision": "dismissed",
+      "decision": "ticketed",
       "first_seen": "2026-10-22",
-      "decided_on": "2026-10-22"
+      "decided_on": "2026-10-22",
+      "ticket_url": "stack-watch/tickets.md#SW-003"
     },
     {
       "title": "August 2026 Security Release",
@@ -3030,9 +3047,10 @@
       "hash": "1c3ecc4838de17c100456a38cc9f71e38f9b4d884610196e844fd7083f009d6a",
       "severity": "Security",
       "proposal": 2,
-      "decision": "dismissed",
+      "decision": "ticketed",
       "first_seen": "2026-10-22",
-      "decided_on": "2026-10-22"
+      "decided_on": "2026-10-22",
+      "ticket_url": "stack-watch/tickets.md#SW-003"
     },
     {
       "title": "Update: August Next.js Security Release",
@@ -3130,9 +3148,10 @@
       "hash": "6a4b52964136ff7ac08276d6b30f634d1c1bbccab4e34e815ba56bf851a66e79",
       "severity": "Pricing or limits",
       "proposal": 4,
-      "decision": "dismissed",
+      "decision": "ticketed",
       "first_seen": "2026-10-22",
-      "decided_on": "2026-10-22"
+      "decided_on": "2026-10-22",
+      "ticket_url": "stack-watch/tickets.md#SW-007"
     },
     {
       "title": "GPT-5.6 Sol is now 50% off a lower price",
@@ -3524,9 +3543,10 @@
       "hash": "487f8c59f41b89b92ec84b696a1fafc04854a1f70996925a7a8b3e5f473dd25d",
       "severity": "Security",
       "proposal": 1,
-      "decision": "dismissed",
+      "decision": "ticketed",
       "first_seen": "2026-10-22",
-      "decided_on": "2026-10-22"
+      "decided_on": "2026-10-22",
+      "ticket_url": "stack-watch/tickets.md#SW-001"
     },
     {
       "title": "Grok Build is now available in the AI SDK harness layer",
@@ -4660,9 +4680,10 @@
       "hash": "844c54e0dda991c7a60a5b608dabfbb58f52ae42be917bd24e072613cafdcc93",
       "severity": "Security",
       "proposal": 1,
-      "decision": "dismissed",
+      "decision": "ticketed",
       "first_seen": "2026-10-22",
-      "decided_on": "2026-10-22"
+      "decided_on": "2026-10-22",
+      "ticket_url": "stack-watch/tickets.md#SW-001"
     },
     {
       "title": "Vercel Sandbox supports forking",
@@ -4818,9 +4839,10 @@
       "source_type": "advisory",
       "hash": "d8370415e40da8f7689fe1302946e0039727a281cf703594beb1232156956655",
       "proposal": 3,
-      "decision": "dismissed",
+      "decision": "ticketed",
       "first_seen": "2026-10-22",
-      "decided_on": "2026-10-22"
+      "decided_on": "2026-10-22",
+      "ticket_url": "stack-watch/tickets.md#SW-005"
     },
     {
       "vendor": "next",
@@ -4836,9 +4858,10 @@
       "source_type": "advisory",
       "hash": "f7884b467ebc393a4b572b05560aa4293425f954f2ed5d30cf1fcd87f134e429",
       "proposal": 2,
-      "decision": "dismissed",
+      "decision": "ticketed",
       "first_seen": "2026-10-22",
-      "decided_on": "2026-10-22"
+      "decided_on": "2026-10-22",
+      "ticket_url": "stack-watch/tickets.md#SW-003"
     },
     {
       "vendor": "next",
@@ -4854,9 +4877,10 @@
       "source_type": "advisory",
       "hash": "9de0de99619b906bc2274bd11ec2f3f4b53c31be2344dc3c627f203f6d359a39",
       "proposal": 2,
-      "decision": "dismissed",
+      "decision": "ticketed",
       "first_seen": "2026-10-22",
-      "decided_on": "2026-10-22"
+      "decided_on": "2026-10-22",
+      "ticket_url": "stack-watch/tickets.md#SW-003"
     },
     {
       "vendor": "next",
@@ -4872,9 +4896,10 @@
       "source_type": "advisory",
       "hash": "7b1be16a650bf93906576cb8b9421eacd1ff97827c2148f3c91aaebc2a4ad61f",
       "proposal": 2,
-      "decision": "dismissed",
+      "decision": "ticketed",
       "first_seen": "2026-10-22",
-      "decided_on": "2026-10-22"
+      "decided_on": "2026-10-22",
+      "ticket_url": "stack-watch/tickets.md#SW-003"
     },
     {
       "vendor": "next",
@@ -4890,9 +4915,10 @@
       "source_type": "advisory",
       "hash": "241ac9934a33edd6e1e379851a5e8b0db6e068cf624a08452ddfb355664e8803",
       "proposal": 2,
-      "decision": "dismissed",
+      "decision": "ticketed",
       "first_seen": "2026-10-22",
-      "decided_on": "2026-10-22"
+      "decided_on": "2026-10-22",
+      "ticket_url": "stack-watch/tickets.md#SW-003"
     },
     {
       "vendor": "next",
@@ -4908,9 +4934,10 @@
       "source_type": "advisory",
       "hash": "f50f49bc8982e45c88be1d47876018ce66f951d46c179ddc5fe2e474312c12f5",
       "proposal": 2,
-      "decision": "dismissed",
+      "decision": "ticketed",
       "first_seen": "2026-10-22",
-      "decided_on": "2026-10-22"
+      "decided_on": "2026-10-22",
+      "ticket_url": "stack-watch/tickets.md#SW-003"
     },
     {
       "vendor": "next",
@@ -4926,9 +4953,10 @@
       "source_type": "advisory",
       "hash": "8bd7f6ee89a4b1cf332c9742dc3ce1918301c86f1c007a45499c9f963489d02b",
       "proposal": 2,
-      "decision": "dismissed",
+      "decision": "ticketed",
       "first_seen": "2026-10-22",
-      "decided_on": "2026-10-22"
+      "decided_on": "2026-10-22",
+      "ticket_url": "stack-watch/tickets.md#SW-003"
     },
     {
       "vendor": "next",
@@ -4944,9 +4972,10 @@
       "source_type": "advisory",
       "hash": "655211cc90172c32c532ed4eec31e15e87a006d5c3c2eeb67a88d94120a5771e",
       "proposal": 2,
-      "decision": "dismissed",
+      "decision": "ticketed",
       "first_seen": "2026-10-22",
-      "decided_on": "2026-10-22"
+      "decided_on": "2026-10-22",
+      "ticket_url": "stack-watch/tickets.md#SW-003"
     },
     {
       "vendor": "next",
@@ -4962,9 +4991,10 @@
       "source_type": "advisory",
       "hash": "9aae4ce53b67fbe4d17ac15f0c7031e34a49cb37a3943f0f19e5ee3a95689988",
       "proposal": 2,
-      "decision": "dismissed",
+      "decision": "ticketed",
       "first_seen": "2026-10-22",
-      "decided_on": "2026-10-22"
+      "decided_on": "2026-10-22",
+      "ticket_url": "stack-watch/tickets.md#SW-003"
     },
     {
       "vendor": "next",
@@ -4980,9 +5010,10 @@
       "source_type": "advisory",
       "hash": "3f21604f939e54e2bbc8baddb5e197f5763dc7a6fe269eeebaac655f180c99bb",
       "proposal": 2,
-      "decision": "dismissed",
+      "decision": "ticketed",
       "first_seen": "2026-10-22",
-      "decided_on": "2026-10-22"
+      "decided_on": "2026-10-22",
+      "ticket_url": "stack-watch/tickets.md#SW-003"
     },
     {
       "vendor": "next",
@@ -4998,9 +5029,10 @@
       "source_type": "advisory",
       "hash": "0d74f4729f7339a9c42c2f399445b690796f568046e5e62ac31d99a8d16e2f19",
       "proposal": 2,
-      "decision": "dismissed",
+      "decision": "ticketed",
       "first_seen": "2026-10-22",
-      "decided_on": "2026-10-22"
+      "decided_on": "2026-10-22",
+      "ticket_url": "stack-watch/tickets.md#SW-003"
     },
     {
       "vendor": "next",
@@ -5016,9 +5048,10 @@
       "source_type": "advisory",
       "hash": "eaac82ba746b12f43e1bd59e39550129028a8d5a99e425a0dcaa451f82f2b1da",
       "proposal": 2,
-      "decision": "dismissed",
+      "decision": "ticketed",
       "first_seen": "2026-10-22",
-      "decided_on": "2026-10-22"
+      "decided_on": "2026-10-22",
+      "ticket_url": "stack-watch/tickets.md#SW-003"
     },
     {
       "vendor": "next",
@@ -5034,9 +5067,10 @@
       "source_type": "advisory",
       "hash": "da72a5843e097285110abfcc0ef63d5cf4ce18b6b2dc88e57d4c203c58d80c91",
       "proposal": 2,
-      "decision": "dismissed",
+      "decision": "ticketed",
       "first_seen": "2026-10-22",
-      "decided_on": "2026-10-22"
+      "decided_on": "2026-10-22",
+      "ticket_url": "stack-watch/tickets.md#SW-003"
     },
     {
       "vendor": "next",
@@ -5052,9 +5086,10 @@
       "source_type": "advisory",
       "hash": "6d6ec639c9e3ea6bce0d4e8222525bc48ba4ccd5a397bd95aab7027eab8325a0",
       "proposal": 2,
-      "decision": "dismissed",
+      "decision": "ticketed",
       "first_seen": "2026-10-22",
-      "decided_on": "2026-10-22"
+      "decided_on": "2026-10-22",
+      "ticket_url": "stack-watch/tickets.md#SW-003"
     },
     {
       "vendor": "next",
@@ -5070,9 +5105,10 @@
       "source_type": "advisory",
       "hash": "2d9f0c55ecd91233c761a1676df310cc06c164f75f7c82ec5cbc30a5eab25140",
       "proposal": 2,
-      "decision": "dismissed",
+      "decision": "ticketed",
       "first_seen": "2026-10-22",
-      "decided_on": "2026-10-22"
+      "decided_on": "2026-10-22",
+      "ticket_url": "stack-watch/tickets.md#SW-003"
     },
     {
       "vendor": "next",
@@ -5088,9 +5124,10 @@
       "source_type": "advisory",
       "hash": "5c5f7e96b8337bf0ced774316b4c4fe9913115fcd5caa8c721e993f3d41f16bd",
       "proposal": 2,
-      "decision": "dismissed",
+      "decision": "ticketed",
       "first_seen": "2026-10-22",
-      "decided_on": "2026-10-22"
+      "decided_on": "2026-10-22",
+      "ticket_url": "stack-watch/tickets.md#SW-003"
     },
     {
       "vendor": "next",
@@ -5106,9 +5143,10 @@
       "source_type": "advisory",
       "hash": "dd12e8dc28b0d7ab4a60e0087c5b2ae36241bbdd2ef2484571572fefbc36a14b",
       "proposal": 2,
-      "decision": "dismissed",
+      "decision": "ticketed",
       "first_seen": "2026-10-22",
-      "decided_on": "2026-10-22"
+      "decided_on": "2026-10-22",
+      "ticket_url": "stack-watch/tickets.md#SW-003"
     },
     {
       "vendor": "next",
@@ -5124,9 +5162,10 @@
       "source_type": "advisory",
       "hash": "d1f0d67623d7988ce825890b116bb2d010b1b21e5a21b98f13a5a81b19f75fea",
       "proposal": 2,
-      "decision": "dismissed",
+      "decision": "ticketed",
       "first_seen": "2026-10-22",
-      "decided_on": "2026-10-22"
+      "decided_on": "2026-10-22",
+      "ticket_url": "stack-watch/tickets.md#SW-003"
     },
     {
       "vendor": "next",
@@ -5142,9 +5181,10 @@
       "source_type": "advisory",
       "hash": "6c1a8a7a1be31e5a415c59b809a485ebc07d17de1ed2810a5149fc74a141a615",
       "proposal": 2,
-      "decision": "dismissed",
+      "decision": "ticketed",
       "first_seen": "2026-10-22",
-      "decided_on": "2026-10-22"
+      "decided_on": "2026-10-22",
+      "ticket_url": "stack-watch/tickets.md#SW-003"
     },
     {
       "vendor": "next",
@@ -5160,9 +5200,10 @@
       "source_type": "advisory",
       "hash": "907c20d75d7b57a31a1d26ebe7a5437510d347586e983278bd477fe7965ddb7f",
       "proposal": 2,
-      "decision": "dismissed",
+      "decision": "ticketed",
       "first_seen": "2026-10-22",
-      "decided_on": "2026-10-22"
+      "decided_on": "2026-10-22",
+      "ticket_url": "stack-watch/tickets.md#SW-003"
     },
     {
       "vendor": "next",
@@ -5178,9 +5219,10 @@
       "source_type": "advisory",
       "hash": "d5ba48484ed0aa82de47e765a4e9da702415f142cbf6cd4f064985230b3a75a2",
       "proposal": 2,
-      "decision": "dismissed",
+      "decision": "ticketed",
       "first_seen": "2026-10-22",
-      "decided_on": "2026-10-22"
+      "decided_on": "2026-10-22",
+      "ticket_url": "stack-watch/tickets.md#SW-003"
     },
     {
       "vendor": "next",
@@ -5196,9 +5238,10 @@
       "source_type": "advisory",
       "hash": "55b35dd4ac97dd63533f8bc6ef9970f38579197407ed5964ec8b12183ebb1d09",
       "proposal": 2,
-      "decision": "dismissed",
+      "decision": "ticketed",
       "first_seen": "2026-10-22",
-      "decided_on": "2026-10-22"
+      "decided_on": "2026-10-22",
+      "ticket_url": "stack-watch/tickets.md#SW-003"
     },
     {
       "vendor": "next",
@@ -5214,9 +5257,10 @@
       "source_type": "advisory",
       "hash": "86c118a29e4321849479162bca1e4357e0314a292d9407b9424ad93d992342f9",
       "proposal": 2,
-      "decision": "dismissed",
+      "decision": "ticketed",
       "first_seen": "2026-10-22",
-      "decided_on": "2026-10-22"
+      "decided_on": "2026-10-22",
+      "ticket_url": "stack-watch/tickets.md#SW-003"
     },
     {
       "vendor": "next",
@@ -5232,9 +5276,10 @@
       "source_type": "advisory",
       "hash": "ee143e538aca44e5d508b953350ddc008a806ce42e601eb074556a7be1faa29d",
       "proposal": 2,
-      "decision": "dismissed",
+      "decision": "ticketed",
       "first_seen": "2026-10-22",
-      "decided_on": "2026-10-22"
+      "decided_on": "2026-10-22",
+      "ticket_url": "stack-watch/tickets.md#SW-003"
     },
     {
       "vendor": "next",
@@ -5250,9 +5295,10 @@
       "source_type": "advisory",
       "hash": "a7fc2c2410abb4ea0948e595de5ad3c9c77cd5a0dd51f08b1a269dd2b1950b58",
       "proposal": 2,
-      "decision": "dismissed",
+      "decision": "ticketed",
       "first_seen": "2026-10-22",
-      "decided_on": "2026-10-22"
+      "decided_on": "2026-10-22",
+      "ticket_url": "stack-watch/tickets.md#SW-003"
     },
     {
       "vendor": "next",
@@ -5268,9 +5314,10 @@
       "source_type": "advisory",
       "hash": "d72ea6a79f312dee3cd2127783aa316a3e67ea640b3f9af1807153417501e8cc",
       "proposal": 2,
-      "decision": "dismissed",
+      "decision": "ticketed",
       "first_seen": "2026-10-22",
-      "decided_on": "2026-10-22"
+      "decided_on": "2026-10-22",
+      "ticket_url": "stack-watch/tickets.md#SW-003"
     },
     {
       "vendor": "next",
@@ -5286,9 +5333,10 @@
       "source_type": "advisory",
       "hash": "a347fdedb8c6499288f4392bb6f32b703dfc9d036feb3c2c15415e94794a4053",
       "proposal": 2,
-      "decision": "dismissed",
+      "decision": "ticketed",
       "first_seen": "2026-10-22",
-      "decided_on": "2026-10-22"
+      "decided_on": "2026-10-22",
+      "ticket_url": "stack-watch/tickets.md#SW-003"
     },
     {
       "vendor": "next",
@@ -5304,9 +5352,10 @@
       "source_type": "advisory",
       "hash": "f0997f8e90d2691c01ed1c8ad7702aaac892ff441d47134e0de2fe76314725da",
       "proposal": 2,
-      "decision": "dismissed",
+      "decision": "ticketed",
       "first_seen": "2026-10-22",
-      "decided_on": "2026-10-22"
+      "decided_on": "2026-10-22",
+      "ticket_url": "stack-watch/tickets.md#SW-003"
     },
     {
       "vendor": "next",
@@ -5322,9 +5371,10 @@
       "source_type": "advisory",
       "hash": "c4426f4712137a43a5349095666536fa47e684f2e998214bbae530a3a9ca1b23",
       "proposal": 2,
-      "decision": "dismissed",
+      "decision": "ticketed",
       "first_seen": "2026-10-22",
-      "decided_on": "2026-10-22"
+      "decided_on": "2026-10-22",
+      "ticket_url": "stack-watch/tickets.md#SW-003"
     },
     {
       "vendor": "next",
@@ -5340,9 +5390,10 @@
       "source_type": "advisory",
       "hash": "9fb40f43453290623f13e7c1a3b1fa7d79c8ea3e7998206d512db5a82529c391",
       "proposal": 2,
-      "decision": "dismissed",
+      "decision": "ticketed",
       "first_seen": "2026-10-22",
-      "decided_on": "2026-10-22"
+      "decided_on": "2026-10-22",
+      "ticket_url": "stack-watch/tickets.md#SW-003"
     },
     {
       "vendor": "next",
@@ -5358,9 +5409,10 @@
       "source_type": "advisory",
       "hash": "89c2a5468a39d3e755bb5338c4f6f677502972bd5bf743d7255899d42af31d7b",
       "proposal": 2,
-      "decision": "dismissed",
+      "decision": "ticketed",
       "first_seen": "2026-10-22",
-      "decided_on": "2026-10-22"
+      "decided_on": "2026-10-22",
+      "ticket_url": "stack-watch/tickets.md#SW-003"
     },
     {
       "vendor": "next",
@@ -5376,9 +5428,10 @@
       "source_type": "advisory",
       "hash": "c20daab314db7f24f8e7f0a46e6acbbcd56a3dd985bdcc071d0eadc405453e80",
       "proposal": 2,
-      "decision": "dismissed",
+      "decision": "ticketed",
       "first_seen": "2026-10-22",
-      "decided_on": "2026-10-22"
+      "decided_on": "2026-10-22",
+      "ticket_url": "stack-watch/tickets.md#SW-003"
     },
     {
       "vendor": "next",
@@ -5394,9 +5447,10 @@
       "source_type": "advisory",
       "hash": "c3bdec4eb8765fdf40c4f1cc5b965a0037626ae2fe2e77c1c98057dda4cf852f",
       "proposal": 2,
-      "decision": "dismissed",
+      "decision": "ticketed",
       "first_seen": "2026-10-22",
-      "decided_on": "2026-10-22"
+      "decided_on": "2026-10-22",
+      "ticket_url": "stack-watch/tickets.md#SW-003"
     },
     {
       "vendor": "next",
@@ -5412,9 +5466,10 @@
       "source_type": "advisory",
       "hash": "280b749e381d8b4e93cdc6420d642192296a4433c5bcbbd446270a136bf6b33e",
       "proposal": 2,
-      "decision": "dismissed",
+      "decision": "ticketed",
       "first_seen": "2026-10-22",
-      "decided_on": "2026-10-22"
+      "decided_on": "2026-10-22",
+      "ticket_url": "stack-watch/tickets.md#SW-003"
     },
     {
       "vendor": "Google Analytics",

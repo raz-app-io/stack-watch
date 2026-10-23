@@ -67,7 +67,7 @@ There is a ready-made sample project in [examples/sample-next-app](examples/samp
 | `stack-watch/sources.json` | Vendor to changelog URL map. Edit it to fix or add sources. |
 | `stack-watch/ledger.json` | Every item ever seen, your decision on it, and run history. |
 | `stack-watch/reports/YYYY-MM-DD.md` | One report per run. |
-| `stack-watch/tickets.md` | Tickets, only when using the markdown tracker. |
+| `stack-watch/tickets.md` | Ticket table, only when using the markdown tracker. |
 
 Commit them. They're meant to be shared with everyone who works on the repo.
 
@@ -86,7 +86,7 @@ Commit them. They're meant to be shared with everyone who works on the repo.
 
 | `type` | `project` | Needs |
 |---|---|---|
-| `markdown` (default) | ignored | nothing |
+| `markdown` (default) | ignored | nothing; tickets are rows in a table in `stack-watch/tickets.md` ([example](examples/sample-next-app/stack-watch/tickets.md)) |
 | `asana` | Asana project name | Asana MCP connector |
 | `linear` | team name, or `Team/Project` | Linear MCP connector |
 | `github` | `owner/repo` | `gh` CLI or GitHub MCP connector |
@@ -121,7 +121,7 @@ commands/stack-watch.md  the /stack-watch command
 skills/stack-watch/
   SKILL.md               the skill instructions Claude follows
   references/            STACK.md template, vendor sources, severity rubric, ticket conventions
-  assets/                per-run report template
+  assets/                report and tickets.md templates
   scripts/               scan_repo, render_stack, diff_stack, fetch_sources, audit, ledger
 examples/sample-next-app a small project with a generated STACK.md and sources.json
 tests/                   unit tests for the scripts (Python 3.9+, standard library only)

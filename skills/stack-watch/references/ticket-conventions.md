@@ -20,7 +20,25 @@ Read this before writing any ticket (probe step 16). The general rules apply to 
 
 ## Tracker: markdown (default)
 
-Append to `stack-watch/tickets.md` in the target repo, creating it with a `# stack-watch tickets` heading if missing. One `##` heading per ticket, using the ticket title. Under it: a `- [ ]` checkbox line `Status: open`, then `Severity`, `Effort`, and `Due` lines, then the description. The "URL" for the ledger is `stack-watch/tickets.md#<heading-slug>`.
+Tickets are rows in one table in `stack-watch/tickets.md` in the target repo. If the file is missing, create it from `assets/tickets-template.md`. Append one row per ticket at the end of the table, never between existing rows.
+
+| Column | Content |
+|---|---|
+| ID | `SW-` plus a three-digit sequence (`SW-001`). Read the last row to find the next number. IDs are never reused, even for deleted rows. |
+| Status | `open` on creation. People close a ticket by changing it to `done YYYY-MM-DD`. |
+| Title | The ticket title, with the `RISK:` or `Q:` prefix for those types. |
+| Severity | The item's severity from the proposal table. |
+| Effort | S, M, or L for work tickets; blank for RISK and Q tickets. |
+| Due | Per rule 9, as `YYYY-MM-DD`; blank when the vendor stated no date. |
+| Definition of done | Rule 4 for work tickets; for RISK tickets the exposure and which work ticket closes it; for Q tickets the options. One line, sentences separated by semicolons. |
+| Linked | The ID of the paired ticket (rule 6), else blank. |
+| Source | The item's source URL (rule 5). |
+| Confidence | high, moderate, low, or unknown (rule 5). |
+| Created | Today's date. |
+
+Cells cannot contain line breaks or unescaped `|`. The "URL" recorded in the ledger is `stack-watch/tickets.md#SW-001` (the ID after the hash). Rule 9 note for this tracker: when the vendor date minus 14 days is already in the past, use the vendor date itself.
+
+See `examples/sample-next-app/stack-watch/tickets.md` in the stack-watch repository for a filled example with two linked pairs and one single work ticket.
 
 ## Tracker: asana
 

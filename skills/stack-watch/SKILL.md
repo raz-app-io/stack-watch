@@ -51,7 +51,7 @@ All are meant to be committed so every contributor can read and correct them.
 | 3 | `stack-watch/sources.json` | Vendor to source-URL map | Skill on discovery; the user by hand for corrections |
 | 4 | `stack-watch/ledger.json` | Every item ever seen, with decisions, plus run history | `ledger.py` only |
 | 5 | `stack-watch/reports/YYYY-MM-DD.md` | Per-run report, kept for audit | Skill only |
-| 6 | `stack-watch/tickets.md` | Tickets, only when the tracker is `markdown` | Skill |
+| 6 | `stack-watch/tickets.md` | Ticket table, only when the tracker is `markdown`. Structure: `assets/tickets-template.md` | Skill appends rows; people change Status |
 
 If the repo's `.gitignore` would exclude any of these, tell the user. Do not silently change `.gitignore`.
 
@@ -127,7 +127,7 @@ Build the stack reference, present it, stop. Do not probe on a bootstrap run.
 13. Write the report to `stack-watch/reports/YYYY-MM-DD.md` using `assets/report-template.md`: run metadata, drift table, unverified sources needing review, proposal table, accepted-gap reminder.
 14. Record the run and the items: `python3 scripts/ledger.py <ledger> record-run probe <start> <items_collected> <items_proposed>`, then pipe the `new` items to `python3 scripts/ledger.py <ledger> add` as one JSON array, with `"severity"` filled in, `"proposal": <n>` on items behind a proposal row, and `"decision": "auto-dismissed"` on Noise items (proposed items default to `pending`). Doing this before waiting on the user means an interrupted session still leaves an accurate ledger.
 15. Print the proposal table in chat, sorted Security, Breaking, Deprecation, Pricing or limits, Opportunity, and by earliest deadline within a severity. Then say: "Reply with item numbers to ticket, W plus item number to watch, D plus item number to dismiss." Stop and wait.
-16. On selection, read `references/ticket-conventions.md` and write the tickets it prescribes for the configured tracker, one item at a time. Confirm each ticket URL (or tickets.md anchor) back in chat.
+16. On selection, read `references/ticket-conventions.md` and write the tickets it prescribes for the configured tracker, one item at a time. Confirm each ticket URL (or tickets.md ID, such as `SW-003`) back in chat.
 17. Update decisions: `python3 scripts/ledger.py <ledger> set-decision <hash> ticketed <ticket_url>`, `watch`, or `dismissed` per the user's reply, for every ledger item behind the chosen proposal number. Unselected items stay `pending`.
 
 The first probe of a repo covers 90 days and can collect several hundred items; a weekly or monthly probe collects a few dozen. Keep the Noise pass quick: a one-line summary per vendor in the report is enough.
@@ -145,3 +145,4 @@ In order: #, Vendor, Severity, Change (one or two plain sentences), Impact on th
 | 3 | `references/severity-rubric.md` | Classifying probe items |
 | 4 | `references/ticket-conventions.md` | Writing any ticket |
 | 5 | `assets/report-template.md` | Writing the per-run report |
+| 6 | `assets/tickets-template.md` | Creating tickets.md for the markdown tracker |
