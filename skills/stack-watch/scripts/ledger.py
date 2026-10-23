@@ -22,8 +22,12 @@ empty if missing):
     ledger.py <ledger.json> last-probed            -> prints ISO date or "null"
     ledger.py <ledger.json> record-run <mode> <lookback_from> <items_seen> <items_proposed>
     ledger.py <ledger.json> list [decision]        -> prints matching items JSON
+    ledger.py <ledger.json> filter                 -> reads an item array (or
+                                                      {"items": [...]}) on stdin,
+                                                      prints {"new", "reshow", "dropped"}
 
-Also importable: seen(), add(), set_decision(), last_probed(), item_hash().
+Also importable: seen(), add(), add_many(), set_decision(), last_probed(),
+filter_items(), item_hash().
 Standard library only.
 """
 
@@ -117,6 +121,36 @@ def set_decision(path, h, decision, ticket_url=None):
     return item
 
 
+RESHOW_NOTES = {"watch": "previously watched",
+                "pending": "previously proposed, awaiting decision"}
+
+
+def filter_items(path, items):
+    """Split freshly collected items against the ledger.
+
+    new:     never seen
+    reshow:  seen with decision watch or pending; each carries a "note"
+    dropped: count of items already ticketed, dismissed, or auto-dismissed
+    """
+    data = load(path)
+    by_hash = {i.get("hash"): i for i in data["items"]}
+    out = {"new": [], "reshow": [], "dropped": 0}
+    for item in items:
+        if not item.get("hash"):
+            item["hash"] = item_hash(item.get("vendor", ""), item.get("url", ""),
+                                     item.get("title", ""))
+        prior = by_hash.get(item["hash"])
+        if prior is None:
+            out["new"].append(item)
+        elif prior.get("decision") in RESHOW_NOTES:
+            item = dict(item, note=RESHOW_NOTES[prior["decision"]],
+                        first_seen=prior.get("first_seen"))
+            out["reshow"].append(item)
+        else:
+            out["dropped"] += 1
+    return out
+
+
 def last_probed(path):
     """ISO date of the most recent probe run recorded, else None."""
     data = load(path)
@@ -160,6 +194,10 @@ def main():
         print(last_probed(path) or "null")
     elif cmd == "record-run":
         print(json.dumps(record_run(path, *rest)))
+    elif cmd == "filter":
+        payload = json.load(sys.stdin)
+        items = payload.get("items", []) if isinstance(payload, dict) else payload
+        print(json.dumps(filter_items(path, items)))
     elif cmd == "list":
         data = load(path)
         items = data["items"]

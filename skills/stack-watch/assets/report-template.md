@@ -10,8 +10,8 @@
 | 2 | Mode | probe or bootstrap |
 | 3 | Repo | <repo path> |
 | 4 | Lookback window | <start date> to <run date> (<basis: first probe 90 days, or last_probed minus 3 days overlap>) |
-| 5 | Sources probed | <n> probed, <n> skipped (retired), <n> unreachable |
-| 6 | Items collected | <n> collected, <n> new after ledger dedupe, <n> auto-dismissed as Noise, <n> proposed |
+| 5 | Sources probed | <n> ok, <n> read directly (HTML), <n> skipped (retired or command), <n> unreachable; <n> prereleases left out |
+| 6 | Items collected | <n> collected (<n> from feeds, <n> read directly, <n> advisories), <n> new after ledger dedupe, <n> re-shown, <n> auto-dismissed as Noise, <n> proposed |
 
 ## Stack drift since last scan
 

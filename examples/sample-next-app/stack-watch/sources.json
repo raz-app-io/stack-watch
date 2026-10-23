@@ -1,0 +1,90 @@
+{
+  "schema_version": 1,
+  "vendors": [
+    {
+      "vendor": "Vercel",
+      "matches": ["vercel", "@vercel/*", "vercel.json"],
+      "sources": [
+        {"type": "changelog", "url": "https://vercel.com/changelog", "feed": "https://vercel.com/atom", "verified": "2026-10-22"}
+      ],
+      "status": "verified"
+    },
+    {
+      "vendor": "Next.js",
+      "matches": ["next", "next.config.*", "eslint-config-next"],
+      "sources": [
+        {"type": "github-releases", "url": "https://github.com/vercel/next.js/releases", "feed": "https://github.com/vercel/next.js/releases.atom", "verified": "2026-10-22"},
+        {"type": "blog", "url": "https://nextjs.org/blog", "feed": "https://nextjs.org/feed.xml", "verified": "2026-10-22"}
+      ],
+      "status": "verified"
+    },
+    {
+      "vendor": "React",
+      "matches": ["react", "react-dom"],
+      "sources": [
+        {"type": "github-releases", "url": "https://github.com/facebook/react/releases", "feed": "https://github.com/facebook/react/releases.atom", "verified": "2026-10-22"},
+        {"type": "blog", "url": "https://react.dev/blog", "feed": "https://react.dev/rss.xml", "verified": "2026-10-22"}
+      ],
+      "status": "verified"
+    },
+    {
+      "vendor": "Node.js",
+      "matches": ["Node.js"],
+      "sources": [
+        {"type": "release-notes", "url": "https://nodejs.org/en/blog/release", "feed": "https://nodejs.org/en/feed/releases.xml", "verified": "2026-10-22"},
+        {"type": "security", "url": "https://nodejs.org/en/blog/vulnerability", "feed": "https://nodejs.org/en/feed/vulnerability.xml", "verified": "2026-10-22"}
+      ],
+      "status": "verified"
+    },
+    {
+      "vendor": "Neon",
+      "matches": ["@neondatabase/*"],
+      "sources": [
+        {"type": "changelog", "url": "https://neon.com/docs/changelog", "feed": "https://neon.com/docs/changelog/rss.xml", "verified": "2026-10-22"}
+      ],
+      "status": "verified"
+    },
+    {
+      "vendor": "Drizzle ORM",
+      "matches": ["drizzle-orm", "drizzle-kit", "drizzle.config.*"],
+      "sources": [
+        {"type": "github-releases", "url": "https://github.com/drizzle-team/drizzle-orm/releases", "feed": "https://github.com/drizzle-team/drizzle-orm/releases.atom", "verified": "2026-10-22"},
+        {"type": "github-releases", "url": "https://github.com/drizzle-team/drizzle-kit-mirror/releases", "feed": "https://github.com/drizzle-team/drizzle-kit-mirror/releases.atom", "verified": "2026-10-22"}
+      ],
+      "status": "verified"
+    },
+    {
+      "vendor": "Stripe",
+      "matches": ["stripe", "@stripe/*"],
+      "sources": [
+        {"type": "changelog", "url": "https://docs.stripe.com/changelog", "feed": null, "verified": "2026-10-22"},
+        {"type": "github-releases", "url": "https://github.com/stripe/stripe-node/releases", "feed": "https://github.com/stripe/stripe-node/releases.atom", "verified": "2026-10-22"}
+      ],
+      "status": "verified"
+    },
+    {
+      "vendor": "Google Analytics",
+      "matches": ["googletagmanager.com", "google-analytics.com", "gtag"],
+      "sources": [
+        {"type": "release-notes", "url": "https://support.google.com/analytics/answer/9164320", "feed": null, "verified": "2026-10-22"}
+      ],
+      "status": "verified"
+    },
+    {
+      "vendor": "Tailwind CSS",
+      "matches": ["tailwindcss", "@tailwindcss/*"],
+      "sources": [
+        {"type": "github-releases", "url": "https://github.com/tailwindlabs/tailwindcss/releases", "feed": "https://github.com/tailwindlabs/tailwindcss/releases.atom", "verified": "2026-10-22"}
+      ],
+      "status": "verified"
+    },
+    {
+      "vendor": "TypeScript",
+      "matches": ["typescript"],
+      "sources": [
+        {"type": "github-releases", "url": "https://github.com/microsoft/TypeScript/releases", "feed": "https://github.com/microsoft/TypeScript/releases.atom", "verified": "2026-10-22"}
+      ],
+      "status": "verified"
+    }
+  ]
+}

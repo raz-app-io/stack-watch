@@ -32,13 +32,14 @@ SCHEMA_VERSION = 1
 SECTION_RULES = [
     ("framework", ["next", "react", "react-dom", "remix", "@remix-run/*",
                    "astro", "nuxt", "svelte", "@sveltejs/*", "vue", "gatsby"]),
-    ("database", ["@neondatabase/*", "pg", "postgres", "mysql2",
+    ("database", ["@neondatabase/*", "@supabase/supabase-js", "pg", "postgres", "mysql2",
                   "better-sqlite3", "@planetscale/*", "mongodb", "redis",
                   "@upstash/*", "@libsql/*"]),
     ("orm", ["drizzle-orm", "drizzle-kit", "prisma", "@prisma/*", "typeorm",
              "sequelize", "kysely", "mongoose"]),
-    ("auth", ["@clerk/*", "next-auth", "@auth/*", "@supabase/auth-*",
-              "firebase-admin", "lucia", "@workos-inc/*", "passport"]),
+    ("auth", ["@clerk/*", "next-auth", "@auth/*", "@supabase/auth-*", "@supabase/ssr",
+              "firebase-admin", "lucia", "@workos-inc/*", "passport", "auth0",
+              "@auth0/*"]),
     ("analytics", ["@vercel/analytics", "@vercel/speed-insights",
                    "posthog-js", "posthog-node",
                    "@sentry/*", "plausible-tracker", "@google-analytics/*",
@@ -58,6 +59,9 @@ CATEGORY_RULES = [
     ("data", ["minisearch", "zod", "date-fns", "lodash*", "papaparse",
               "csv-*", "gray-matter"]),
     ("SEO", ["next-sitemap", "next-seo", "schema-dts", "rss"]),
+    ("payments", ["stripe", "@stripe/*", "@paypal/*", "square"]),
+    ("email", ["resend", "nodemailer", "@sendgrid/*", "postmark", "@react-email/*"]),
+    ("AI", ["openai", "@anthropic-ai/*", "ai", "@ai-sdk/*"]),
 ]
 
 # Third-party script/beacon domains worth naming explicitly.

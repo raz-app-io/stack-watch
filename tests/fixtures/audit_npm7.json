@@ -1,0 +1,25 @@
+{
+  "auditReportVersion": 2,
+  "vulnerabilities": {
+    "next": {
+      "name": "next", "severity": "high", "isDirect": true,
+      "via": [
+        {"source": 1098, "name": "next", "dependency": "next", "title": "Next.js Server-Side Request Forgery in Server Actions", "url": "https://github.com/advisories/GHSA-fr5h-rqp8-mj6g", "severity": "high", "cwe": ["CWE-918"], "range": ">=13.4.0 <14.1.1"}
+      ],
+      "effects": [], "range": ">=13.4.0 <14.1.1", "nodes": ["node_modules/next"],
+      "fixAvailable": {"name": "next", "version": "14.2.3", "isSemVerMajor": false}
+    },
+    "ws": {
+      "name": "ws", "severity": "moderate", "isDirect": false,
+      "via": [
+        {"source": 1099, "name": "ws", "dependency": "ws", "title": "ws affected by a DoS when handling a request with many HTTP headers", "url": "https://github.com/advisories/GHSA-3h5v-q93c-6h6q", "severity": "high", "range": ">=8.0.0 <8.17.1"}
+      ],
+      "effects": ["engine.io"], "range": ">=8.0.0 <8.17.1", "nodes": ["node_modules/ws"], "fixAvailable": true
+    },
+    "engine.io": {
+      "name": "engine.io", "severity": "moderate", "isDirect": false,
+      "via": ["ws"], "effects": [], "range": "*", "nodes": ["node_modules/engine.io"], "fixAvailable": true
+    }
+  },
+  "metadata": {"vulnerabilities": {"info": 0, "low": 0, "moderate": 1, "high": 1, "critical": 0, "total": 2}}
+}

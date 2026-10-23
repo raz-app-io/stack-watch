@@ -1,0 +1,20 @@
+{
+  "actions": [],
+  "advisories": {
+    "1098": {
+      "findings": [{"version": "14.0.4", "paths": ["next"]}],
+      "module_name": "next", "severity": "high",
+      "title": "Next.js Server-Side Request Forgery in Server Actions",
+      "url": "https://github.com/advisories/GHSA-fr5h-rqp8-mj6g",
+      "vulnerable_versions": ">=13.4.0 <14.1.1", "recommendation": "Upgrade to version 14.1.1 or later"
+    },
+    "1099": {
+      "findings": [{"version": "8.16.0", "paths": ["socket.io>engine.io>ws"]}],
+      "module_name": "ws", "severity": "high",
+      "title": "ws affected by a DoS when handling a request with many HTTP headers",
+      "url": "https://github.com/advisories/GHSA-3h5v-q93c-6h6q",
+      "vulnerable_versions": ">=8.0.0 <8.17.1", "recommendation": "Upgrade to version 8.17.1 or later"
+    }
+  },
+  "metadata": {"vulnerabilities": {"high": 2, "total": 2}}
+}

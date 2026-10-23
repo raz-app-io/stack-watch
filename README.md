@@ -6,9 +6,9 @@ Vendors announce these in changelogs nobody reads. stack-watch reads them for yo
 
 ## What it does
 
-1. **Discovers your stack.** A deterministic scanner reads `package.json`, your lockfile, hosting and framework config, layout files for third-party script tags, and env var *names* (never values). It writes a `STACK.md` at your repo root that every contributor can read and correct.
-2. **Detects drift.** Each run rescans and diffs against `STACK.md`, and summarizes git activity on dependency and config files since the last scan. A new package, a version bump, or a removed service from another contributor shows up in the report.
-3. **Probes vendor sources.** For each vendor in the stack it fetches the public changelog, release notes, or GitHub releases feed, and runs your package manager's audit.
+1. **Discovers your stack.** A deterministic scanner reads `package.json`, your lockfile (npm, pnpm, Yarn, bun), hosting and framework config, layout files for third-party script tags, and env var *names* (never values). A renderer writes a `STACK.md` at your repo root that every contributor can read and correct.
+2. **Detects drift.** Each run rescans, diffs against `STACK.md`, applies the changes, and summarizes git activity on dependency and config files since the last scan. A new package, a version bump, or a removed service from another contributor shows up in the report. Rows that disappear are flagged once and removed on the second consecutive miss.
+3. **Probes vendor sources.** A fetcher reads every RSS and Atom feed and GitHub releases source for the vendors in your stack, and runs your package manager's audit. HTML-only changelogs are read by Claude directly.
 4. **Classifies and maps impact.** Each item is rated Security, Breaking, Deprecation, Pricing or limits, Opportunity, or Noise, and mapped to the files and routes it affects. A ledger remembers everything it has already shown you, so nothing is reported twice.
 5. **Proposes tickets and waits for you.** You get a ranked proposal table. Reply with item numbers to ticket, `W3` to watch, `D4` to dismiss. Tickets go to Asana, Linear, GitHub Issues, or a markdown file in the repo.
 
@@ -20,6 +20,8 @@ Vendors announce these in changelogs nobody reads. stack-watch reads them for yo
 /plugin marketplace add raz-app-io/stack-watch
 /plugin install stack-watch@stack-watch
 ```
+
+This adds the skill and a `/stack-watch` command.
 
 ### Claude Code (skill folder)
 
@@ -42,14 +44,19 @@ cd stack-watch/skills && zip -r stack-watch.zip stack-watch
 
 ## Usage
 
-In a JavaScript or TypeScript repo, ask Claude:
+In a JavaScript or TypeScript repo:
 
-- "Run stack-watch" (first run builds `STACK.md` and stops so you can review it)
-- "Check for vendor updates that affect this project"
-- "What changed at Vercel or Next.js lately that matters to us?"
-- "Refresh STACK.md"
+```
+/stack-watch                 # bootstrap if there is no STACK.md, otherwise probe
+/stack-watch bootstrap       # rebuild STACK.md (the hand-confirmed section is kept)
+/stack-watch probe ../other  # probe a different repo
+```
+
+Or just ask: "Check for vendor updates that affect this project", "What changed at Vercel or Next.js lately that matters to us?", "Refresh STACK.md".
 
 The first run is a **bootstrap**: it builds `STACK.md` and `stack-watch/sources.json`, then stops for you to confirm them and fill in the hand-confirmed section (services the scan can't see, such as DNS, email, or analytics accounts). Every later run is a **probe**.
+
+There is a ready-made sample project in [examples/sample-next-app](examples/sample-next-app) if you want to see what the output looks like before pointing it at your own repo.
 
 ## Files it writes in your repo
 
@@ -93,27 +100,31 @@ Breaking, Deprecation, and Security items create a linked pair: a `RISK:` ticket
 - **Env values are never read.** The scanner never opens `.env`, `.env.local`, or any non-example env file. This is covered by a test.
 - **Only what's in the stack is tracked.** A vendor gets probed only if the scan finds it or you list it in the hand-confirmed section.
 - **STACK.md is a hypothesis, not the truth.** Every run rescans. A row that disappears is flagged once, then removed on the second consecutive miss.
+- **Scripts do the deterministic work.** Scanning, rendering, diffing, fetching, auditing, and dedupe are Python with no dependencies and are unit tested. Claude's judgment is spent on reading HTML-only sources, classifying severity, and mapping impact.
 
 ## Limitations
 
 - **JavaScript and TypeScript projects only** (npm, pnpm, Yarn, and bun). Python, Go, Ruby, and other ecosystems are not scanned yet. Monorepos are scanned at the root `package.json` only.
 - **Public web sources only.** Vendors that announce sunsets only by email are not covered. Every report repeats this.
 - **Changelog quality varies.** Some vendors have no feed, and some change behavior without announcing it. Sources not in the built-in list are marked `unverified` until you confirm them.
+- **GitHub API rate limit.** Release feeds are read through the GitHub API (60 requests an hour unauthenticated). Set `GITHUB_TOKEN` if you track many GitHub-hosted projects; the fetcher falls back to the public Atom feed when the API refuses.
 
 ## Built-in vendor sources
 
-Vercel, Next.js, Neon, Drizzle ORM, Clerk, Google Analytics, Google Search Console, Calendly, and the npm advisory database. Other vendors are found by web search during bootstrap. Pull requests that add or correct entries in [vendor-sources.md](skills/stack-watch/references/vendor-sources.md) are welcome.
+Vercel, Netlify, Cloudflare, Next.js, React, Astro, Node.js, TypeScript, Tailwind CSS, Neon, Supabase, PlanetScale, Upstash, Drizzle ORM, Prisma, Firebase, Clerk, Auth.js, Auth0, Stripe, Resend, Google Analytics, Google Search Console, Sentry, PostHog, Calendly, and the npm advisory database. Every URL was fetched and checked. Other vendors are found by web search during bootstrap. Pull requests that add or correct entries in [vendor-sources.md](skills/stack-watch/references/vendor-sources.md) are welcome.
 
 ## Repository layout
 
 ```
 .claude-plugin/          plugin and marketplace manifests
+commands/stack-watch.md  the /stack-watch command
 skills/stack-watch/
   SKILL.md               the skill instructions Claude follows
   references/            STACK.md template, vendor sources, severity rubric, ticket conventions
   assets/                per-run report template
-  scripts/               scan_repo.py, diff_stack.py, ledger.py (Python 3.9+, standard library only)
-tests/                   unit tests for the scripts
+  scripts/               scan_repo, render_stack, diff_stack, fetch_sources, audit, ledger
+examples/sample-next-app a small project with a generated STACK.md and sources.json
+tests/                   unit tests for the scripts (Python 3.9+, standard library only)
 ```
 
 ## Development
@@ -122,13 +133,16 @@ tests/                   unit tests for the scripts
 python3 -m unittest discover -s tests -v
 ```
 
-The scripts can be run directly:
+The scripts can be run directly. Against the sample project:
 
 ```bash
-python3 skills/stack-watch/scripts/scan_repo.py /path/to/repo --pretty
-python3 skills/stack-watch/scripts/diff_stack.py scan.json /path/to/repo/STACK.md --pretty
-python3 skills/stack-watch/scripts/ledger.py /path/to/repo/stack-watch/ledger.json list
+python3 skills/stack-watch/scripts/scan_repo.py examples/sample-next-app --pretty > /tmp/scan.json
+python3 skills/stack-watch/scripts/diff_stack.py /tmp/scan.json examples/sample-next-app/STACK.md --pretty
+python3 skills/stack-watch/scripts/fetch_sources.py examples/sample-next-app/stack-watch/sources.json --since 2026-10-01 --pretty
+python3 skills/stack-watch/scripts/audit.py --input tests/fixtures/audit_npm7.json --pretty
 ```
+
+Each script's docstring documents its arguments and output.
 
 ## License
 

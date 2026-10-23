@@ -1,74 +1,202 @@
 # Known vendor sources
 
-Read this file during bootstrap (step 5) and during probe (step 6) when a detected vendor needs a sources.json entry. Copy the matching entry into sources.json. If a vendor is not listed here, search the web for "<vendor> changelog" and "<vendor> release notes", prefer the vendor's own domain, and add the result to sources.json with status "unverified".
+Read this file during bootstrap (step 5) and during probe (step 6) when a detected vendor needs a `sources.json` entry. Copy the matching entry into `sources.json`. If a vendor is not listed here, search the web for "<vendor> changelog" and "<vendor> release notes", prefer the vendor's own domain, and add the result with status `unverified`.
 
-A vendor listed here is copied into sources.json only when the scan detects it or a hand-confirmed STACK.md row names it (SKILL.md operating rule 6).
+A vendor listed here is copied into `sources.json` only when the scan detects it or a hand-confirmed STACK.md row names it (SKILL.md operating rule 6).
 
-Verification method note: entries below were last verified on 2026-08-29. Entries marked "fetch" were fetched directly and confirmed. Entries marked "search" were confirmed through web search results that showed the page title and dated entries, without a direct fetch. Re-verify any "search" entry on first successful direct fetch and update its verified date. Corrections and new vendors are welcome as pull requests.
+How to read an entry: `matches` are the package names, config files, or script domains that identify the vendor in a scan. Each source has a `type`, a `url` (the page a person reads), and a `feed` (what `fetch_sources.py` fetches: RSS, Atom, or a GitHub releases page, which the script reads through the GitHub API). A source with `feed: null` is an HTML page; `fetch_sources.py` reports it as `unparsed` and you read it yourself. GitHub releases pages are always machine-readable, so they count as feeds.
 
-## Vercel
+Verification: every URL below was fetched directly on 2026-10-22 and returned the expected content type. Re-verify on first use if the date is more than six months old, and update the `verified` field in `sources.json`. Corrections and new vendors are welcome as pull requests.
+
+## sources.json shape
+
+```json
+{
+  "schema_version": 1,
+  "vendors": [
+    {
+      "vendor": "Vercel",
+      "matches": ["vercel", "@vercel/*", "vercel.json"],
+      "sources": [
+        {"type": "changelog", "url": "https://vercel.com/changelog", "feed": "https://vercel.com/atom", "verified": "2026-10-22"}
+      ],
+      "status": "verified"
+    }
+  ]
+}
+```
+
+`status` is `verified`, `unverified`, or `retired`. Retired vendors are kept for history and skipped by the fetcher.
+
+## Hosting and platform
+
+### Vercel
 
 - matches: `vercel`, `@vercel/*`, `vercel.json`
-- source 1: type changelog, url https://vercel.com/changelog, feed: none confirmed (https://vercel.com/atom is the blog feed, not the changelog feed; a community report from 2024 says it can break), verified 2026-08-29 (search)
-- status: verified
+- source: type changelog, url https://vercel.com/changelog, feed https://vercel.com/changelog/feed (Atom; titled "Vercel News" but its entries are changelog posts)
 
-## Next.js
+### Netlify
 
-- matches: `next`, `next.config.*`, `eslint-config-next`
-- source 1: type github-releases, url https://github.com/vercel/next.js/releases, feed https://github.com/vercel/next.js/releases.atom, verified 2026-08-29 (fetch)
-- source 2: type blog, url https://nextjs.org/blog, feed https://nextjs.org/feed.xml, verified: not yet (add as unverified if used)
-- status: verified
-- note: canary releases are frequent. Filter to stable releases unless a canary carries a security note.
+- matches: `@netlify/*`, `netlify-cli`, `netlify.toml`
+- source: type changelog, url https://www.netlify.com/changelog/, feed https://www.netlify.com/changelog/feed.xml (RSS)
 
-## Neon
+### Cloudflare
 
-- matches: `@neondatabase/*`, `neon`, `DATABASE_URL` pointing at neon.tech
-- source 1: type changelog, url https://neon.com/docs/changelog, feed: the docs resources section advertises RSS; candidate url https://neon.com/docs/changelog/rss.xml is unconfirmed, verified 2026-08-29 (search, dated entries seen through 2026-08-21)
-- status: verified
+- matches: `wrangler`, `@cloudflare/*`, `wrangler.toml`, `wrangler.jsonc`
+- source: type changelog, url https://developers.cloudflare.com/changelog/, feed https://developers.cloudflare.com/changelog/rss/index.xml (RSS, covers all products including Workers and Pages)
 
-## Drizzle ORM
+## Frameworks and languages
+
+### Next.js
+
+- matches: `next`, `next.config.*`, `eslint-config-next`, `@next/*`
+- source 1: type github-releases, url https://github.com/vercel/next.js/releases, feed https://github.com/vercel/next.js/releases.atom
+- source 2: type blog, url https://nextjs.org/blog, feed https://nextjs.org/feed.xml (RSS)
+- note: canary releases are frequent and arrive as prereleases. The rubric treats them as Noise unless they carry a security note.
+
+### React
+
+- matches: `react`, `react-dom`
+- source 1: type github-releases, url https://github.com/facebook/react/releases, feed https://github.com/facebook/react/releases.atom
+- source 2: type blog, url https://react.dev/blog, feed https://react.dev/rss.xml (RSS)
+
+### Astro
+
+- matches: `astro`, `@astrojs/*`, `astro.config.*`
+- source: type github-releases, url https://github.com/withastro/astro/releases, feed https://github.com/withastro/astro/releases.atom
+
+### Node.js
+
+- matches: the Runtime row `Node.js`, `.nvmrc`, `engines.node`
+- source 1: type release-notes, url https://nodejs.org/en/blog/release, feed https://nodejs.org/en/feed/releases.xml (RSS)
+- source 2: type security, url https://nodejs.org/en/blog/vulnerability, feed https://nodejs.org/en/feed/vulnerability.xml (RSS; security release announcements)
+
+### TypeScript
+
+- matches: `typescript`
+- source 1: type github-releases, url https://github.com/microsoft/TypeScript/releases, feed https://github.com/microsoft/TypeScript/releases.atom
+- source 2: type blog, url https://devblogs.microsoft.com/typescript/, feed https://devblogs.microsoft.com/typescript/feed/ (RSS)
+
+### Tailwind CSS
+
+- matches: `tailwindcss`, `@tailwindcss/*`
+- source 1: type github-releases, url https://github.com/tailwindlabs/tailwindcss/releases, feed https://github.com/tailwindlabs/tailwindcss/releases.atom
+- source 2: type blog, url https://tailwindcss.com/blog, feed null
+
+## Databases and data layer
+
+### Neon
+
+- matches: `@neondatabase/*`, `DATABASE_URL` pointing at neon.tech
+- source: type changelog, url https://neon.com/docs/changelog, feed https://neon.com/docs/changelog/rss.xml (RSS)
+
+### Supabase
+
+- matches: `@supabase/*`, `supabase` (CLI)
+- source 1: type changelog, url https://supabase.com/changelog, feed null
+- source 2: type github-releases, url https://github.com/supabase/supabase-js/releases, feed https://github.com/supabase/supabase-js/releases.atom
+
+### PlanetScale
+
+- matches: `@planetscale/*`
+- source: type changelog, url https://planetscale.com/changelog, feed https://planetscale.com/changelog/rss.xml (Atom)
+
+### Upstash
+
+- matches: `@upstash/*`
+- source: type github-releases, url https://github.com/upstash/redis-js/releases, feed https://github.com/upstash/redis-js/releases.atom
+- note: covers the Redis SDK only. Upstash platform announcements are on https://upstash.com/blog (HTML, not verified as a changelog).
+
+### Drizzle ORM
 
 - matches: `drizzle-orm`, `drizzle-kit`, `drizzle.config.*`
-- source 1: type github-releases, url https://github.com/drizzle-team/drizzle-orm/releases, feed https://github.com/drizzle-team/drizzle-orm/releases.atom, verified 2026-08-29 (fetch)
-- source 2: type github-releases, url https://github.com/drizzle-team/drizzle-kit-mirror/releases, feed https://github.com/drizzle-team/drizzle-kit-mirror/releases.atom, verified: not yet (drizzle-kit release notes are published there; add as unverified if drizzle-kit is detected)
-- status: verified
+- source 1: type github-releases, url https://github.com/drizzle-team/drizzle-orm/releases, feed https://github.com/drizzle-team/drizzle-orm/releases.atom
+- source 2: type github-releases, url https://github.com/drizzle-team/drizzle-kit-mirror/releases, feed https://github.com/drizzle-team/drizzle-kit-mirror/releases.atom (drizzle-kit release notes are published here; add only when drizzle-kit is detected)
 
-## Clerk
+### Prisma
 
-- matches: `@clerk/*`, `clerk`
-- source 1: type changelog, url https://clerk.com/changelog, feed: none confirmed, verified 2026-08-29 (search)
-- source 2: type changelog-markdown, url https://clerk.com/changelog/changelog.md, feed null, verified 2026-08-29 (search; a plain-markdown mirror of the changelog, cheap to parse when reachable)
-- status: verified
+- matches: `prisma`, `@prisma/*`
+- source: type github-releases, url https://github.com/prisma/prisma/releases, feed https://github.com/prisma/prisma/releases.atom
 
-## Google Analytics
+### Firebase
 
-- matches: script domains `googletagmanager.com`, `google-analytics.com`, `gtag` snippets, env names containing `GA_` or `GTAG`
-- source 1: type release-notes, url https://support.google.com/analytics/answer/9164320 ("What's new in Google Analytics"), feed null, verified 2026-08-29 (search)
-- source 2: type announcements, url https://support.google.com/analytics/announcements/10707884, feed null, verified 2026-08-29 (search)
-- status: verified
-- note: Google also changes gtag collect endpoints remotely with no announcement. Pair this source with a check of the repo's Content Security Policy allowlist when a GA item appears.
+- matches: `firebase`, `firebase-admin`
+- source: type release-notes, url https://firebase.google.com/support/release-notes/js, feed null
 
-## Google Search Console
+## Authentication
 
-- matches: hand-entered service (scan cannot detect Search Console use), `google-site-verification` meta tags
-- source 1: type blog, url https://developers.google.com/search/blog (Search Central Blog, where Search Console announcements land), feed: candidate https://developers.google.com/search/blog/rss.xml unconfirmed, verified 2026-08-29 (search)
-- source 2: type release-notes, url https://developers.google.com/search/updates (Search documentation updates), feed null, verified 2026-08-29 (search)
-- status: verified
+### Clerk
 
-## Calendly
+- matches: `@clerk/*`
+- source 1: type changelog, url https://clerk.com/changelog, feed null
+- source 2: type changelog-markdown, url https://clerk.com/changelog/changelog.md, feed null (a plain-markdown index of every changelog entry, cheap to read directly)
+
+### Auth.js (NextAuth)
+
+- matches: `next-auth`, `@auth/*`
+- source: type github-releases, url https://github.com/nextauthjs/next-auth/releases, feed https://github.com/nextauthjs/next-auth/releases.atom
+
+### Auth0
+
+- matches: `auth0`, `@auth0/*`
+- source: type changelog, url https://auth0.com/changelog, feed https://auth0.com/changelog/rss.xml (RSS)
+
+## Payments and email
+
+### Stripe
+
+- matches: `stripe`, `@stripe/*`
+- source 1: type changelog, url https://docs.stripe.com/changelog, feed null (API version changelog; read directly)
+- source 2: type github-releases, url https://github.com/stripe/stripe-node/releases, feed https://github.com/stripe/stripe-node/releases.atom
+
+### Resend
+
+- matches: `resend`
+- source: type changelog, url https://resend.com/changelog, feed https://resend.com/changelog/rss.xml (RSS)
+
+## Analytics, monitoring, and search
+
+### Google Analytics
+
+- matches: script domains `googletagmanager.com`, `google-analytics.com`, `gtag` snippets, `@next/third-parties` GoogleAnalytics, env names containing `GA_` or `GTAG`
+- source 1: type release-notes, url https://support.google.com/analytics/answer/9164320 ("What's new in Google Analytics"), feed null
+- source 2: type announcements, url https://support.google.com/analytics/announcements/10707884, feed null
+- note: Google also changes gtag collect endpoints remotely with no announcement. When a GA item appears, pair it with a check of the repo's Content Security Policy allowlist.
+
+### Google Search Console
+
+- matches: hand-entered service (the scan cannot detect Search Console use), `google-site-verification` meta tags
+- source 1: type blog, url https://developers.google.com/search/blog, feed https://feeds.feedburner.com/blogspot/amDG (RSS; the Search Central blog feed. On first probe confirm the newest entry is recent)
+- source 2: type release-notes, url https://developers.google.com/search/updates, feed null
+
+### Sentry
+
+- matches: `@sentry/*`, script domain `sentry.io`
+- source 1: type changelog, url https://sentry.io/changelog/, feed null
+- source 2: type github-releases, url https://github.com/getsentry/sentry-javascript/releases, feed https://github.com/getsentry/sentry-javascript/releases.atom
+
+### PostHog
+
+- matches: `posthog-js`, `posthog-node`, script domain `posthog.com`
+- source 1: type changelog, url https://posthog.com/changelog, feed null
+- source 2: type github-releases, url https://github.com/PostHog/posthog-js/releases, feed https://github.com/PostHog/posthog-js/releases.atom
+
+### Calendly
 
 - matches: script or link domains `calendly.com`, `assets.calendly.com`, `react-calendly`
-- source 1: type release-notes, url https://calendly.com/release-notes (product), feed null, verified 2026-08-29 (search)
-- source 2: type api-release-notes, url https://developer.calendly.com/release-notes, feed https://developer.calendly.com/rss.xml (Atom variant https://developer.calendly.com/atom.xml), verified 2026-08-29 (search; feed URLs were advertised in the search result)
-- status: verified
+- source 1: type release-notes, url https://calendly.com/release-notes, feed null
+- source 2: type api-release-notes, url https://developer.calendly.com/release-notes, feed null
 
-## npm ecosystem
+## Package advisories
+
+### npm ecosystem
 
 - matches: any `package.json` project
-- source 1: type advisories, command `npm audit --json` run in the repo (use the pnpm or yarn equivalent when the lockfile says so), verified 2026-08-29 (local command, no URL)
-- source 2: type advisories, url https://github.com/advisories, feed null, verified 2026-08-29 (fetchable domain; query per-package when a pinned package needs a lookup)
-- status: verified
+- source 1: type advisories, command `python3 scripts/audit.py <repo>` (runs the package manager's audit for the detected lockfile; no URL)
+- source 2: type advisories, url https://github.com/advisories, feed null (query per package when a pinned package needs a manual lookup)
 
-## Unresolved vendors
+Represent this vendor in `sources.json` with a single source `{"type": "advisories", "command": "audit.py", "url": null, "feed": null}`. The fetcher skips it; probe step 9 runs it.
 
-Every vendor listed above resolved to a working source as of 2026-08-29. Open follow-ups: confirm the Neon changelog RSS URL and whether Vercel publishes a changelog feed, then fill in the feed fields above.
+## Unresolved
+
+Vendors whose public changelog could not be confirmed on 2026-10-22: none. Feeds that were looked for and do not exist: Supabase changelog RSS, PostHog changelog RSS, Stripe changelog RSS, Calendly developer RSS and Atom, Google Search Central `rss.xml`.

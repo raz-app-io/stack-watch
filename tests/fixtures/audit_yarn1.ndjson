@@ -1,0 +1,2 @@
+{"type":"auditAdvisory","data":{"resolution":{"id":1098,"path":"next","dev":false},"advisory":{"findings":[{"version":"14.0.4","paths":["next"]}],"module_name":"next","severity":"high","title":"Next.js Server-Side Request Forgery in Server Actions","url":"https://github.com/advisories/GHSA-fr5h-rqp8-mj6g","vulnerable_versions":">=13.4.0 <14.1.1","recommendation":"Upgrade to version 14.1.1 or later"}}}
+{"type":"auditSummary","data":{"vulnerabilities":{"info":0,"low":0,"moderate":0,"high":1,"critical":0},"dependencies":312}}

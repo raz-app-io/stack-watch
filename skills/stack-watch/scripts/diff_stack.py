@@ -57,7 +57,7 @@ SCAN_TO_SECTION = {
 }
 
 MISSED_FLAG_RE = re.compile(r"\(not found in repo, first missed (\d{4}-\d{2}-\d{2})\)")
-EMPTY_ROW_VALUES = {"", "none detected", "n/a"}
+EMPTY_ROW_VALUES = {"", "none detected", "none yet", "n/a"}
 
 
 def norm(s):
@@ -69,7 +69,11 @@ def norm(s):
 def parse_stack_md(path):
     """Return {section: {norm_key: row_dict}} for known sections."""
     with open(path, encoding="utf-8") as f:
-        lines = f.read().splitlines()
+        return parse_stack_md_text(f.read())
+
+
+def parse_stack_md_text(text):
+    lines = text.splitlines()
     sections = {}
     current = None
     header = None
