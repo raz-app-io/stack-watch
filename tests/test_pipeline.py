@@ -606,3 +606,77 @@ class HeadlessTest(unittest.TestCase):
             r = run("headless.py", d, "--out", os.path.join(d, "out"))
             self.assertEqual(r.returncode, 1)
             self.assertIn("run a bootstrap first", r.stdout)
+
+
+class RankTest(unittest.TestCase):
+    def load_sample(self):
+        with open(os.path.join(SAMPLES, "proposals.json"), encoding="utf-8") as f:
+            return json.load(f)
+
+    def test_sample_scores_grades_and_order(self):
+        import rank
+        rows = rank.rank(self.load_sample(), today="2026-10-22")
+        got = [(r["rank"], r["vendor"], r["grade"], r["score"], r["default"]) for r in rows]
+        self.assertEqual(got, [
+            (1, "Next.js", "A", 10.0, "ticket"),
+            (2, "Node.js", "A", 9.0, "ticket"),
+            (3, "Drizzle ORM", "A", 9.0, "ticket"),
+            (4, "Vercel", "B", 6.5, "ticket"),
+            (5, "Google Analytics", "C", 4.0, "ticket (backlog)"),
+            (6, "Stripe", "D", 3.5, "watch"),
+            (7, "Neon", "D?", 2.5, "watch"),
+        ])
+        self.assertEqual(rows[3]["deadline_text"], "2026-10-23 (tomorrow)")
+        self.assertEqual(rows[3]["severity_label"], "Pricing (increase)")
+        self.assertEqual(rows[6]["severity_label"], "Pricing (favorable)")
+        self.assertEqual(rows[0]["score_parts"], {"base": 4.0, "impact": 3, "exposure": 2, "urgency": 1, "effort_cost": 0.0})
+
+    def test_summary_and_markdown(self):
+        import rank
+        rows = rank.rank(self.load_sample(), today="2026-10-22")
+        s = rank.summary(rows)
+        self.assertTrue(s.startswith("7 proposals: 3 A, 1 B, 1 C, 2 D. Defaults create 5 ticket(s) and watch 2."))
+        self.assertIn("`defaults`", s)
+        md = rank.markdown(rows)
+        header = md.splitlines()[0]
+        self.assertEqual(header.count("|") - 1, len(rank.COLUMNS))
+        self.assertTrue(md.splitlines()[2].startswith("| 1 | A | 10.0 | Next.js | Security |"))
+
+    def test_deadline_text(self):
+        import rank
+        t = "2026-10-22"
+        self.assertEqual(rank.deadline_text(None, t), "none stated")
+        self.assertEqual(rank.deadline_text("2026-10-22", t), "2026-10-22 (today)")
+        self.assertEqual(rank.deadline_text("2026-10-21", t), "2026-10-21 (yesterday)")
+        self.assertEqual(rank.deadline_text("2026-10-01", t), "2026-10-01 (21 days ago)")
+        self.assertEqual(rank.deadline_text("2027-04-30", t), "2027-04-30 (190 days)")
+
+    def test_urgency_and_effort_rules(self):
+        import rank
+        base = {"vendor": "V", "severity": "Opportunity", "impact": "major", "exposure": "confirmed",
+                "confidence": "high", "effort": "L"}
+        s_l, _ = rank.score(base, "2026-10-22")
+        s_s, _ = rank.score(dict(base, effort="S"), "2026-10-22")
+        self.assertEqual((s_l, s_s), (4.0, 5.0))  # effort cost applies to Opportunity
+        sec = {"vendor": "V", "severity": "Security", "advisory_severity": "low", "exposure": "unclear",
+               "confidence": "high", "effort": "L"}
+        self.assertEqual(rank.score(sec, "2026-10-22")[0], 4.0)  # no effort cost for Security
+        self.assertEqual(rank.score(dict(sec, fix_available=True), "2026-10-22")[0], 5.0)
+        soon = dict(base, effort="S", deadline="2026-11-30")
+        self.assertEqual(rank.score(soon, "2026-10-22")[1]["urgency"], 1)
+        past = dict(base, effort="S", deadline="2026-10-01")
+        self.assertEqual(rank.score(past, "2026-10-22")[1]["urgency"], 2)
+        self.assertEqual(rank.score(dict(base, impact="severe", effort="S", deadline="2026-10-23"), "2026-10-22")[0], 8.0)
+
+    def test_rejects_unknown_values(self):
+        import rank
+        with self.assertRaises(ValueError):
+            rank.score({"severity": "Urgent", "impact": "major", "exposure": "confirmed"}, "2026-10-22")
+        with self.assertRaises(ValueError):
+            rank.score({"severity": "Breaking", "impact": "huge", "exposure": "confirmed"}, "2026-10-22")
+
+    def test_cli(self):
+        r = run("rank.py", os.path.join(SAMPLES, "proposals.json"), "--today", "2026-10-22", "--format", "md")
+        self.assertEqual(r.returncode, 0, r.stderr)
+        self.assertIn("7 proposals: 3 A, 1 B, 1 C, 2 D.", r.stdout)
+        self.assertIn("| 4 | B | 6.5 | Vercel | Pricing (increase) |", r.stdout)

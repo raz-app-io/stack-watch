@@ -7,7 +7,8 @@ Everything in this folder came out of one bootstrap and one probe run on [exampl
 | [STACK.md](STACK.md) | bootstrap, refreshed by every probe | The stack reference that lives at your repo root |
 | [sources.json](sources.json) | bootstrap | Which changelog or feed to read for each vendor |
 | [config.json](config.json) | bootstrap | Ticket tracker setting |
-| [report-2026-10-22.md](report-2026-10-22.md) | probe | The run report, with the proposal table |
+| [report-2026-10-22.md](report-2026-10-22.md) | probe | The run report, with the graded proposal table |
+| [proposals.json](proposals.json) | probe | The structured fields behind each proposal; `rank.py` turns them into the table |
 | [tickets.md](tickets.md) | after you reply to the proposal table | Tickets, when the tracker is `markdown` |
 | [ledger.json](ledger.json) | probe | Every item seen, your decision on it, run history |
 
@@ -55,17 +56,19 @@ Vendors are added only when the scan finds them. The sample has ten: Vercel, Nex
 
 ## 3. Probe: the report
 
-The probe rescans the repo, diffs it against STACK.md, fetches every source for the lookback window (90 days on the first run, then from three days before the last probe), runs `npm audit`, drops everything already in the ledger, classifies what is left, and writes a report. The sample run collected **375 items**, dismissed **315** as Noise, and proposed **7**.
+The probe rescans the repo, diffs it against STACK.md, fetches every source for the lookback window (90 days on the first run, then from three days before the last probe), runs `npm audit`, drops everything already in the ledger, classifies what is left, and writes a report. The sample run collected **375 items**, dismissed **315** as Noise, and proposed **7**. Each proposal is scored and graded by `rank.py` from five fields Claude sets (impact, exposure, deadline, fix available, effort); the fields for this run are in [proposals.json](proposals.json).
 
-| # | Vendor | Severity | Change | Proposed action | Effort | Deadline | Confidence |
-|---|---|---|---|---|---|---|---|
-| 1 | Next.js | Security | 33 advisories against `next` 14.2.21, 4 Critical; the 14.x line gets no more fixes | Upgrade next to 15.5.28 and React to 19 | L | none stated | high |
-| 2 | Node.js | Security | Node 20 is end-of-life and unpatched for the October 2026 High CVEs | Move to Node.js 24 LTS | S | none stated | high |
-| 3 | Drizzle ORM | Security | SQL injection advisory on `drizzle-orm` below 0.45.2 | Upgrade drizzle-orm to 0.45.4 | M | none stated | high |
-| 4 | Vercel | Pricing or limits | Deployment Storage billing starts, retention drops to 30 days on 2026-10-23 | Set a retention policy before 2026-10-23 | S | 2026-10-23 | moderate |
-| 5 | Neon | Pricing or limits | Free plan storage per project 0.5 GB to 1 GB | Record the Neon plan in STACK.md | S | none stated | low |
-| 6 | Google Analytics | Opportunity | Hostname Include filters (domain allowlist) now available | Add an Include filter for the production domain | S | none stated | moderate |
-| 7 | Stripe | Opportunity | stripe-node 23 and API version Endive with breaking changes; nothing breaks while the API version stays pinned | Plan the SDK upgrade | M | none stated | moderate |
+| # | Grade | Score | Vendor | Severity | Change | Proposed action | Effort | Deadline | Default |
+|---|---|---|---|---|---|---|---|---|---|
+| 1 | A | 10.0 | Next.js | Security | 33 advisories against `next` 14.2.21, 4 Critical; the 14.x line gets no more fixes | Upgrade next to 15.5.28 and React to 19 | L | none stated | ticket |
+| 2 | A | 9.0 | Node.js | Security | Node 20 is end-of-life and unpatched for the October 2026 High CVEs | Move to Node.js 24 LTS | S | none stated | ticket |
+| 3 | A | 9.0 | Drizzle ORM | Security | SQL injection advisory on `drizzle-orm` below 0.45.2 | Upgrade drizzle-orm to 0.45.4 | M | none stated | ticket |
+| 4 | B | 6.5 | Vercel | Pricing (increase) | Deployment Storage billing starts, retention drops to 30 days on 2026-10-23 | Set a retention policy before 2026-10-23 | S | 2026-10-23 (tomorrow) | ticket |
+| 5 | C | 4.0 | Google Analytics | Opportunity | Hostname Include filters (domain allowlist) now available | Add an Include filter for the production domain | S | none stated | ticket (backlog) |
+| 6 | D | 3.5 | Stripe | Opportunity | stripe-node 23 and API version Endive with breaking changes; nothing breaks while the API version stays pinned | Plan the SDK upgrade | M | none stated | watch |
+| 7 | D? | 2.5 | Neon | Pricing (favorable) | Free plan storage per project 0.5 GB to 1 GB | Record the Neon plan in STACK.md | S | none stated | watch |
+
+7 proposals: 3 A, 1 B, 1 C, 2 D. Defaults create 5 ticket(s) and watch 2.
 
 The report has the full table with an "Impact on this project" column naming the affected files, a drift section, a list of unverified sources, a one-paragraph-per-vendor summary of what was dismissed as Noise, and a reminder that email-only vendor notices are not covered. Full file: [report-2026-10-22.md](report-2026-10-22.md).
 
@@ -77,7 +80,7 @@ Nothing is ticketed until you reply.
 
 ## 4. Your reply: tickets
 
-The sample reply was `1, 2, 3, 4, D5, D6, D7`. With the `markdown` tracker, tickets are rows in one table. Security, Breaking, and Deprecation items produce a linked pair: a `RISK:` row describing the exposure and a work row describing the fix.
+The sample reply was `1, 2, 3, 4, D5, D6, D7` (close to the defaults, which would have watched 6 and 7 instead of dismissing them). With the `markdown` tracker, tickets are rows in one table. Security, Breaking, and Deprecation items produce a linked pair: a `RISK:` row describing the exposure and a work row describing the fix.
 
 | ID | Status | Title | Severity | Effort | Due | Linked |
 |---|---|---|---|---|---|---|

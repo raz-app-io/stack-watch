@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.3.0 (2026-10-22)
+
+- New `rank.py`: every proposal gets a score (severity base + impact + exposure + urgency - effort cost) and a grade A to D, the table is sorted by score, and a Default column suggests ticket, ticket (backlog), or watch. A summary line counts grades; `defaults` is a valid reply
+- Deadlines show their distance ("2026-10-23 (tomorrow)"); Pricing rows show direction (increase, favorable)
+- severity-rubric.md: Scoring section defining impact, exposure, deadline, fix_available, pricing_direction
+- samples: proposals.json and the regenerated graded table
+
 ## 1.2.0 (2026-10-22)
 
 - `audit.py` queries OSV.dev with the lockfile's exact versions by default; no package manager needed. Falls back to `npm`/`pnpm`/`yarn`/`bun audit`. Same titles and advisory URLs either way, so the ledger dedupes across sources

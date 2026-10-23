@@ -11,8 +11,8 @@ A worked example of every step below is in [samples/README.md](samples/README.md
 1. **Discovers your stack.** A deterministic scanner reads `package.json`, your lockfile (npm, pnpm, Yarn, bun), hosting and framework config, layout files for third-party script tags, and env var *names* (never values). A renderer writes a `STACK.md` at your repo root that every contributor can read and correct.
 2. **Detects drift.** Each run rescans, diffs against `STACK.md`, applies the changes, and summarizes git activity on dependency and config files since the last scan. A new package, a version bump, or a removed service from another contributor shows up in the report. Rows that disappear are flagged once and removed on the second consecutive miss.
 3. **Probes vendor sources.** A fetcher reads every RSS and Atom feed and GitHub releases source for the vendors in your stack. Advisories come from OSV.dev for every locked version (no package manager needed); end-of-life dates from endoflife.date; deprecated or outdated pins from the npm registry. HTML-only changelogs are read by Claude directly.
-4. **Classifies and maps impact.** Each item is rated Security, Breaking, Deprecation, Pricing or limits, Opportunity, or Noise, and mapped to the files and routes it affects. A ledger remembers everything it has already shown you, so nothing is reported twice.
-5. **Proposes tickets and waits for you.** You get a ranked proposal table. Reply with item numbers to ticket, `W3` to watch, `D4` to dismiss. Tickets go to Asana, Linear, GitHub Issues, or a markdown file in the repo.
+4. **Classifies, maps impact, and grades.** Each item is rated Security, Breaking, Deprecation, Pricing or limits, Opportunity, or Noise, and mapped to the files and routes it affects. Then `rank.py` scores it (severity, impact, exposure, urgency, effort) and grades it A to D, so a Critical RCE with a fix available outranks a favorable pricing change even when both are "worth knowing". A ledger remembers everything it has already shown you, so nothing is reported twice.
+5. **Proposes tickets and waits for you.** You get a sorted table with a grade, a score, and a suggested default per row. Reply with item numbers to ticket, `W3` to watch, `D4` to dismiss, or `defaults`. Tickets go to Asana, Linear, GitHub Issues, or a markdown file in the repo.
 
 ## Install
 
@@ -134,7 +134,7 @@ skills/stack-watch/
   references/            STACK.md template, vendor sources, severity rubric, ticket conventions
   assets/                report and tickets.md templates
   scripts/               scan_repo, render_stack, diff_stack, fetch_sources, audit, lifecycle,
-                         discover_sources, ledger, headless
+                         discover_sources, rank, ledger, headless
 examples/sample-next-app a small Next.js project the samples and tests run against
 samples/                 one complete run's output (STACK.md, sources, report, tickets, ledger) with a walkthrough
 tests/                   unit tests for the scripts (Python 3.9+, standard library only)
@@ -155,6 +155,7 @@ python3 skills/stack-watch/scripts/fetch_sources.py samples/sources.json --since
 python3 skills/stack-watch/scripts/audit.py examples/sample-next-app --pretty          # OSV.dev, no npm needed
 python3 skills/stack-watch/scripts/lifecycle.py /tmp/scan.json --pretty
 python3 skills/stack-watch/scripts/discover_sources.py /tmp/scan.json --existing samples/sources.json --pretty
+python3 skills/stack-watch/scripts/rank.py samples/proposals.json --format md               # the graded table
 ```
 
 Each script's docstring documents its arguments and output.

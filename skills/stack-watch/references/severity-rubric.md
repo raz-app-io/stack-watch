@@ -13,6 +13,30 @@ Read this when classifying probe items (probe step 12). Every non-Noise item goe
 | 5 | Opportunity | A new feature or capability could improve performance, SEO, cost, developer speed, or user experience for this specific project | Hosting vendor ships a caching primitive relevant to the site's data-fetch pattern |
 | 6 | Noise | None of the above, or the item touches nothing in STACK.md | Vendor blog post about a customer case study; a release that only touches platforms or features the repo does not use |
 
+## Scoring, grading, and ranking
+
+Severity says what kind of change it is. The grade says how urgently this project should act. `scripts/rank.py` computes it from five fields you set per proposal, so the arithmetic is identical every run and the table is sorted the same way for every reader.
+
+| Field | Values | How to choose |
+|---|---|---|
+| `impact` | severe, major, moderate, minor | What happens if nobody acts: severe = outage, data loss, or exploitable; major = a feature or integration stops working, or a cost jump; moderate = degraded, noisier, slower, or a modest cost; minor = cosmetic or informational. For Security, set `advisory_severity` (critical, high, moderate, low) from the advisory instead |
+| `exposure` | confirmed, likely, unclear | confirmed = the affected package, config, route, or plan is in STACK.md or the repo (name the file); likely = probably applies but a detail is unknown (plan tier, region, feature flag); unclear = cannot tell, or a precondition the repo does not meet (the Windows-only RCE on a Linux deploy is `unclear`) |
+| `deadline` | YYYY-MM-DD or null | Only a vendor-stated date. Urgency is derived: past or within 14 days counts most, within 90 days counts some |
+| `fix_available` | true, false | Security and Deprecation only: a fixed version or replacement exists today. Counts as urgency when there is no date |
+| `pricing_direction` | increase, favorable, neutral | Pricing items only. A favorable change still goes in the table (people should know) but ranks low |
+| `effort` | S, M, L | Unchanged meaning. Lowers the score only for Pricing and Opportunity; for the top three severities it only breaks ties |
+
+Score = base (Security 4, Breaking 3.5, Deprecation 3, Pricing increase 2.5, neutral 2, favorable 1.5, Opportunity 1) + impact (0 to 3) + exposure (0 to 2) + urgency (0 to 2) - effort cost (Pricing and Opportunity: S 0, M 0.5, L 1), capped at 10.
+
+| Grade | Score | Meaning | Default |
+|---|---|---|---|
+| A | 8 or more | Act this week | ticket |
+| B | 6 to 7.9 | Before the deadline, within the sprint | ticket |
+| C | 4 to 5.9 | Schedule it | ticket (backlog) |
+| D | below 4 | Worth knowing, not worth a ticket yet | watch |
+
+Low or unknown confidence appends `?` to the grade (`B?`) and changes nothing else: the recall rule above still applies. Rows sort by score, then smaller effort first, then earliest deadline. The Default column is a suggestion; the user's reply decides.
+
 ## Tie-breaks and judgment calls
 
 1. When two severities could apply, pick the higher one in the order listed above (Security highest).

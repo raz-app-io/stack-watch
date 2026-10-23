@@ -41,12 +41,14 @@ Git activity on dependency and config files since last scan: <n> commits by <aut
 
 ## Proposals
 
-<!-- Sort: Security, Breaking, Deprecation, Pricing or limits, Opportunity. Within a severity, earliest deadline first. Numbering restarts at 1 every run. -->
+<!-- Paste rank.py's summary line and table as printed: sorted by score, then effort, then deadline. Numbering restarts at 1 every run. -->
 
-| # | Vendor | Severity | Change | Impact on this project | Proposed action | Effort | Deadline | Source | Confidence | Note |
-|---|---|---|---|---|---|---|---|---|---|---|
+<summary line from rank.py>
 
-Reply with item numbers to ticket, W plus item number to watch, D plus item number to dismiss. Example: `1, 3, W2, D4`.
+| # | Grade | Score | Vendor | Severity | Change | Impact on this project | Proposed action | Effort | Deadline | Source | Confidence | Default | Note |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+
+Reply with item numbers to ticket, W plus item number to watch, D plus item number to dismiss, or `defaults`. Example: `1, 3, W2, D4`.
 
 ### Classified as Noise (auto-dismissed, <n> items)
 
