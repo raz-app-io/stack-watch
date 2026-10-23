@@ -1,5 +1,7 @@
 # stack-watch
 
+![stack-watch: vendor changes, before they bite](media/thumbnail-1280.png)
+
 A Claude skill that keeps you ahead of vendor changes: deprecations, sunsets, breaking API and SDK changes, pricing and limit changes, security advisories, and new features worth adopting.
 
 Vendors announce these in changelogs nobody reads. stack-watch reads them for you, filters them down to what touches *your* stack, and proposes tickets. You pick which ones get created.

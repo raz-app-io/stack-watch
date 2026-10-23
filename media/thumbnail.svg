@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="640" viewBox="0 0 1280 640">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0b1220"/>
+      <stop offset="1" stop-color="#111b2e"/>
+    </linearGradient>
+    <linearGradient id="sweep" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#22d3ee" stop-opacity="0"/>
+      <stop offset="1" stop-color="#22d3ee" stop-opacity="0.55"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#22d3ee" stop-opacity="0.18"/>
+      <stop offset="1" stop-color="#22d3ee" stop-opacity="0"/>
+    </radialGradient>
+    <clipPath id="radar"><circle cx="330" cy="320" r="190"/></clipPath>
+  </defs>
+
+  <rect width="1280" height="640" fill="url(#bg)"/>
+
+  <!-- subtle grid -->
+  <g stroke="#1f2a44" stroke-width="1" opacity="0.6">
+    <path d="M0 160H1280M0 320H1280M0 480H1280M320 0V640M640 0V640M960 0V640"/>
+  </g>
+
+  <!-- radar -->
+  <circle cx="330" cy="320" r="230" fill="url(#glow)"/>
+  <g fill="none" stroke="#2dd4bf" stroke-opacity="0.35" stroke-width="2">
+    <circle cx="330" cy="320" r="190"/>
+    <circle cx="330" cy="320" r="135"/>
+    <circle cx="330" cy="320" r="80"/>
+    <path d="M140 320H520M330 130V510"/>
+  </g>
+  <g clip-path="url(#radar)">
+    <path d="M330 320 L330 130 A190 190 0 0 1 494 225 Z" fill="url(#sweep)"/>
+    <path d="M330 320 L494 225" stroke="#22d3ee" stroke-width="3" stroke-linecap="round"/>
+  </g>
+
+  <!-- stacked layers in the center of the radar -->
+  <g transform="translate(330 320)">
+    <path d="M-48 10 L0 34 L48 10 L0 -14 Z" fill="#0ea5e9" opacity="0.95"/>
+    <path d="M-48 -10 L0 14 L48 -10 L0 -34 Z" fill="#38bdf8" opacity="0.95"/>
+    <path d="M-48 -30 L0 -6 L48 -30 L0 -54 Z" fill="#7dd3fc"/>
+  </g>
+
+  <!-- blips: graded findings -->
+  <g>
+    <circle cx="438" cy="238" r="9" fill="#f87171"/>
+    <circle cx="438" cy="238" r="16" fill="none" stroke="#f87171" stroke-opacity="0.5" stroke-width="2"/>
+    <text x="458" y="243" font-family="Menlo, SFMono-Regular, Consolas, monospace" font-size="18" font-weight="700" fill="#fca5a5">A</text>
+    <circle cx="236" cy="396" r="8" fill="#fbbf24"/>
+    <text x="254" y="401" font-family="Menlo, SFMono-Regular, Consolas, monospace" font-size="18" font-weight="700" fill="#fcd34d">B</text>
+    <circle cx="262" cy="212" r="7" fill="#94a3b8"/>
+    <text x="278" y="217" font-family="Menlo, SFMono-Regular, Consolas, monospace" font-size="18" font-weight="700" fill="#cbd5e1">D</text>
+  </g>
+
+  <!-- title block -->
+  <text x="640" y="268" font-family="-apple-system, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="92" font-weight="700" fill="#f8fafc" letter-spacing="-2">stack-watch</text>
+  <text x="640" y="326" font-family="-apple-system, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="34" fill="#94a3b8">Vendor changes, before they bite.</text>
+
+  <!-- three-line pitch -->
+  <g font-family="-apple-system, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="24" fill="#cbd5e1">
+    <circle cx="652" cy="391" r="5" fill="#22d3ee"/>
+    <text x="672" y="399">Scans your repo, writes STACK.md</text>
+    <circle cx="652" cy="437" r="5" fill="#22d3ee"/>
+    <text x="672" y="445">Reads every vendor changelog and advisory</text>
+    <circle cx="652" cy="483" r="5" fill="#22d3ee"/>
+    <text x="672" y="491">Grades what matters, you pick the tickets</text>
+  </g>
+
+  <!-- footer -->
+  <text x="640" y="572" font-family="Menlo, SFMono-Regular, Consolas, monospace" font-size="22" fill="#64748b">github.com/raz-app-io/stack-watch</text>
+  <text x="644" y="188" font-family="Menlo, SFMono-Regular, Consolas, monospace" font-size="20" fill="#22d3ee" letter-spacing="4">A CLAUDE CODE SKILL</text>
+</svg>
