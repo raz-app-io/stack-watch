@@ -38,6 +38,10 @@ Git activity on dependency and config files since last scan: <n> commits by <aut
 
 Reply with item numbers to ticket, W plus item number to watch, D plus item number to dismiss. Example: `1, 3, W2, D4`.
 
+### Classified as Noise (auto-dismissed, <n> items)
+
+<!-- One or two sentences per vendor: what kind of items were dropped, and any notable item a reader might expect to see and why it did not qualify. -->
+
 ## Accepted gap reminder
 
 This run probed public web sources only: changelogs, release notes, engineering blogs, GitHub releases and advisories, npm advisories. Email-first vendor notices are not covered. Some vendors announce sunsets by email before or instead of posting publicly.

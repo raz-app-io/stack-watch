@@ -78,7 +78,7 @@ If the repo's `.gitignore` would exclude any of these, tell the user. Do not sil
       "vendor": "Vercel",
       "matches": ["vercel", "@vercel/*", "vercel.json"],
       "sources": [
-        {"type": "changelog", "url": "https://vercel.com/changelog", "feed": "https://vercel.com/atom", "verified": "2026-10-22"}
+        {"type": "changelog", "url": "https://vercel.com/changelog", "feed": "https://vercel.com/atom", "url_filter": "/changelog/", "verified": "2026-10-22"}
       ],
       "status": "verified"
     }
@@ -86,7 +86,7 @@ If the repo's `.gitignore` would exclude any of these, tell the user. Do not sil
 }
 ```
 
-`feed` is an RSS or Atom URL, or null for an HTML page. A GitHub releases page in `url` is fetched through the GitHub API, so it counts as a feed. `status` is `verified`, `unverified`, or `retired`. `references/vendor-sources.md` has ready entries for common vendors.
+`feed` is an RSS or Atom URL, or null for an HTML page. A GitHub releases page in `url` is fetched through the GitHub API, so it counts as a feed. `url_filter` (optional, a regular expression) keeps only items whose URL matches; use it when a vendor's feed mixes blog posts with changelog entries. `status` is `verified`, `unverified`, or `retired`. `references/vendor-sources.md` has ready entries for common vendors.
 
 ## Mode selection
 
@@ -119,15 +119,18 @@ Build the stack reference, present it, stop. Do not probe on a bootstrap run.
    - `unparsed`: an HTML-only page. Fetch it yourself, read entries dated within the window, and write each as an item in the same shape (`vendor`, `title`, `url`, `date`, `body`, `source_type`, `source_status`) into `<tmp>/manual.json`. Keep `body` to the facts: what changed, who is affected, any date.
    - `unreachable`: note it in the report and continue.
    - Items whose `source_status` is `unverified` get the note "from unverified source".
+   - Some feeds carry titles only (`body` is empty; Node.js release feeds do this). When such a title suggests Security, Breaking, Deprecation, or a pricing change, read the linked page before classifying.
 9. Run `python3 scripts/audit.py <repo> --pretty > <tmp>/audit.json`. Its items already carry severity Security. If `error` is set (package manager not installed, no lockfile), say so in the report and continue.
 10. Dedupe: concatenate the item arrays from feed.json, manual.json, and audit.json into one array and pipe it to `python3 scripts/ledger.py <repo>/stack-watch/ledger.json filter`. The output has `new` (never seen), `reshow` (previously `watch` or `pending`, each with a `note`), and `dropped` (already ticketed or dismissed).
-11. Classify every `new` and `reshow` item. Read `references/severity-rubric.md` and follow it. Severities: Security, Breaking, Deprecation, Pricing or limits, Opportunity, Noise.
+11. Classify every `new` and `reshow` item. Read `references/severity-rubric.md` and follow it. Severities: Security, Breaking, Deprecation, Pricing or limits, Opportunity, Noise. Group related items into one proposal when they call for the same action: all advisories against one package, a vendor's release plus the blog post announcing it, a pricing change and its follow-up posts. Every grouped item keeps its own ledger entry with a `proposal` number so dedupe still works item by item.
 12. Map each non-Noise item to the stack: which STACK.md row it touches, which repo files or routes are affected (grep the repo for the package import, config key, or script domain), and the vendor-stated deadline, if any. An item that touches nothing in STACK.md is downgraded to Noise, unless it is Security.
 13. Write the report to `stack-watch/reports/YYYY-MM-DD.md` using `assets/report-template.md`: run metadata, drift table, unverified sources needing review, proposal table, accepted-gap reminder.
-14. Record the run and the items: `python3 scripts/ledger.py <ledger> record-run probe <start> <items_collected> <items_proposed>`, then pipe the `new` items to `python3 scripts/ledger.py <ledger> add` as one JSON array, with `"severity"` filled in and `"decision": "auto-dismissed"` on Noise items (proposed items default to `pending`). Doing this before waiting on the user means an interrupted session still leaves an accurate ledger.
+14. Record the run and the items: `python3 scripts/ledger.py <ledger> record-run probe <start> <items_collected> <items_proposed>`, then pipe the `new` items to `python3 scripts/ledger.py <ledger> add` as one JSON array, with `"severity"` filled in, `"proposal": <n>` on items behind a proposal row, and `"decision": "auto-dismissed"` on Noise items (proposed items default to `pending`). Doing this before waiting on the user means an interrupted session still leaves an accurate ledger.
 15. Print the proposal table in chat, sorted Security, Breaking, Deprecation, Pricing or limits, Opportunity, and by earliest deadline within a severity. Then say: "Reply with item numbers to ticket, W plus item number to watch, D plus item number to dismiss." Stop and wait.
 16. On selection, read `references/ticket-conventions.md` and write the tickets it prescribes for the configured tracker, one item at a time. Confirm each ticket URL (or tickets.md anchor) back in chat.
-17. Update decisions: `python3 scripts/ledger.py <ledger> set-decision <hash> ticketed <ticket_url>`, `watch`, or `dismissed` per the user's reply. Unselected items stay `pending`.
+17. Update decisions: `python3 scripts/ledger.py <ledger> set-decision <hash> ticketed <ticket_url>`, `watch`, or `dismissed` per the user's reply, for every ledger item behind the chosen proposal number. Unselected items stay `pending`.
+
+The first probe of a repo covers 90 days and can collect several hundred items; a weekly or monthly probe collects a few dozen. Keep the Noise pass quick: a one-line summary per vendor in the report is enough.
 
 ## Proposal table columns
 

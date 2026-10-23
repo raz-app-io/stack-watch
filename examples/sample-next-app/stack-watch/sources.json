@@ -5,7 +5,7 @@
       "vendor": "Vercel",
       "matches": ["vercel", "@vercel/*", "vercel.json"],
       "sources": [
-        {"type": "changelog", "url": "https://vercel.com/changelog", "feed": "https://vercel.com/atom", "verified": "2026-10-22"}
+        {"type": "changelog", "url": "https://vercel.com/changelog", "feed": "https://vercel.com/atom", "url_filter": "/changelog/", "verified": "2026-10-22"}
       ],
       "status": "verified"
     },

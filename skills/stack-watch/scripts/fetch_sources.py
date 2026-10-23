@@ -18,6 +18,9 @@ Output:
       "sources": [{"vendor", "url", "status", "count", "error"}]
     }
 
+A source may carry "url_filter", a regular expression; items whose URL does
+not match it are dropped (for feeds that mix a blog with a changelog).
+
 Source status values: ok, unreachable, unparsed, skipped. Items with no
 parseable date are kept with "date": null. Prereleases (GitHub prerelease
 flag, or a canary/alpha/beta/rc title) are left out unless
@@ -92,10 +95,15 @@ def parse_date(s):
 
 
 def text_of(el, *names):
+    """Text of the first non-empty child. Atom `<content type="xhtml">` wraps
+    markup in child elements, so those are serialized too."""
     for n in names:
         child = el.find(n)
-        if child is not None and (child.text or "").strip():
-            return child.text
+        if child is None:
+            continue
+        text = (child.text or "") + "".join(ET.tostring(c, encoding="unicode") for c in child)
+        if text.strip():
+            return text
     return ""
 
 
@@ -216,9 +224,12 @@ def collect(sources_doc, since, timeout=20, max_body=2000, fetcher=fetch_source,
                 continue
             s = dict(s, _status=status)
             items, st, err, used = fetcher(vendor, s, timeout, max_body)
+            url_filter = re.compile(s["url_filter"]) if s.get("url_filter") else None
             kept = pre = 0
             for it in items:
                 if it["date"] and it["date"] < since:
+                    continue
+                if url_filter and not url_filter.search(it.get("url", "")):
                     continue
                 if it.get("prerelease") and not include_prereleases:
                     pre += 1

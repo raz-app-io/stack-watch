@@ -38,6 +38,7 @@ import os
 import sys
 
 SCHEMA_VERSION = 1
+BODY_KEEP = 200  # characters of an item's body kept in the ledger
 DECISIONS = {"ticketed", "watch", "dismissed", "auto-dismissed", "pending"}
 
 
@@ -83,6 +84,8 @@ def _add_to(data, item):
         return existing
     item.setdefault("first_seen", datetime.date.today().isoformat())
     item.setdefault("decision", "pending")
+    if isinstance(item.get("body"), str) and len(item["body"]) > BODY_KEEP:
+        item["body"] = item["body"][:BODY_KEEP].rstrip() + "..."  # the report holds the full text
     if item["decision"] not in DECISIONS:
         raise ValueError(f"unknown decision: {item['decision']}")
     data["items"].append(item)

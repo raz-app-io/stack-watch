@@ -15,4 +15,13 @@
     <title>v14.9.9</title>
     <summary>Old patch release.</summary>
   </entry>
+  <entry>
+    <id>https://example.com/changelog/xhtml-entry</id>
+    <updated>2026-10-16T00:00:00Z</updated>
+    <link href="https://example.com/changelog/xhtml-entry"/>
+    <title>Deployment retention changes</title>
+    <content type="xhtml">
+      <div xmlns="http://www.w3.org/1999/xhtml"><p>Deployments older than <b>30 days</b> will be deleted.</p><p class="more"><a href="https://example.com/x">Read more</a></p></div>
+    </content>
+  </entry>
 </feed>

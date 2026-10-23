@@ -4,7 +4,7 @@ Read this file during bootstrap (step 5) and during probe (step 6) when a detect
 
 A vendor listed here is copied into `sources.json` only when the scan detects it or a hand-confirmed STACK.md row names it (SKILL.md operating rule 6).
 
-How to read an entry: `matches` are the package names, config files, or script domains that identify the vendor in a scan. Each source has a `type`, a `url` (the page a person reads), and a `feed` (what `fetch_sources.py` fetches: RSS, Atom, or a GitHub releases page, which the script reads through the GitHub API). A source with `feed: null` is an HTML page; `fetch_sources.py` reports it as `unparsed` and you read it yourself. GitHub releases pages are always machine-readable, so they count as feeds.
+How to read an entry: `matches` are the package names, config files, or script domains that identify the vendor in a scan. Each source has a `type`, a `url` (the page a person reads), and a `feed` (what `fetch_sources.py` fetches: RSS, Atom, or a GitHub releases page, which the script reads through the GitHub API). A source with `feed: null` is an HTML page; `fetch_sources.py` reports it as `unparsed` and you read it yourself. An optional `url_filter` (regular expression) keeps only items whose URL matches, for feeds that mix a blog with a changelog. GitHub releases pages are always machine-readable, so they count as feeds.
 
 Verification: every URL below was fetched directly on 2026-10-22 and returned the expected content type. Re-verify on first use if the date is more than six months old, and update the `verified` field in `sources.json`. Corrections and new vendors are welcome as pull requests.
 
@@ -18,7 +18,7 @@ Verification: every URL below was fetched directly on 2026-10-22 and returned th
       "vendor": "Vercel",
       "matches": ["vercel", "@vercel/*", "vercel.json"],
       "sources": [
-        {"type": "changelog", "url": "https://vercel.com/changelog", "feed": "https://vercel.com/atom", "verified": "2026-10-22"}
+        {"type": "changelog", "url": "https://vercel.com/changelog", "feed": "https://vercel.com/atom", "url_filter": "/changelog/", "verified": "2026-10-22"}
       ],
       "status": "verified"
     }
@@ -33,7 +33,7 @@ Verification: every URL below was fetched directly on 2026-10-22 and returned th
 ### Vercel
 
 - matches: `vercel`, `@vercel/*`, `vercel.json`
-- source: type changelog, url https://vercel.com/changelog, feed https://vercel.com/changelog/feed (Atom; titled "Vercel News" but its entries are changelog posts)
+- source: type changelog, url https://vercel.com/changelog, feed https://vercel.com/atom (Atom; one feed for the blog and the changelog. Set `"url_filter": "/changelog/"` on the source so blog posts are dropped; https://vercel.com/changelog/feed redirects here). Expect 50 to 100 changelog posts a month, most about AI Gateway models.
 
 ### Netlify
 
@@ -70,6 +70,7 @@ Verification: every URL below was fetched directly on 2026-10-22 and returned th
 - matches: the Runtime row `Node.js`, `.nvmrc`, `engines.node`
 - source 1: type release-notes, url https://nodejs.org/en/blog/release, feed https://nodejs.org/en/feed/releases.xml (RSS)
 - source 2: type security, url https://nodejs.org/en/blog/vulnerability, feed https://nodejs.org/en/feed/vulnerability.xml (RSS; security release announcements)
+- note: both feeds carry titles only, no body. Read a security-release post directly to learn which release lines were fixed; end-of-life lines are never fixed and the post says so.
 
 ### TypeScript
 

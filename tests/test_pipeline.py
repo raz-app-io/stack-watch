@@ -146,7 +146,8 @@ class FetchSourcesTest(unittest.TestCase):
 
     def test_parse_atom(self):
         items = fetch_sources.parse_feed(read_fixture("feed_atom.xml"), "Example", self.SRC)
-        self.assertEqual(len(items), 2)
+        self.assertEqual(len(items), 3)
+        self.assertEqual(items[2]["body"], "Deployments older than 30 days will be deleted. Read more")
         self.assertEqual(items[0]["title"], "v15.0.0")
         self.assertEqual(items[0]["date"], "2026-10-15")
         self.assertEqual(items[0]["url"], "https://github.com/example/repo/releases/tag/v15.0.0")
@@ -237,6 +238,10 @@ class FetchSourcesTest(unittest.TestCase):
         self.assertEqual(by_vendor["npm ecosystem"][0]["status"], "skipped")
         with_pre = fetch_sources.collect(doc, "2026-10-01", fetcher=fake_fetcher, include_prereleases=True)
         self.assertIn("v2-canary.1", [i["title"] for i in with_pre["items"]])
+        doc["vendors"][0]["sources"] = [{"type": "changelog", "url": "https://v/c", "feed": "https://v/f",
+                                         "url_filter": "/undated$"}]
+        filtered = fetch_sources.collect(doc, "2026-10-01", fetcher=fake_fetcher)
+        self.assertEqual([i["title"] for i in filtered["items"]], ["undated"])
 
     def test_cli_rejects_bad_since(self):
         r = run("fetch_sources.py", os.path.join(FIXTURES, "feed_rss.xml"), "--since", "last-week")
@@ -306,7 +311,9 @@ class LedgerFilterTest(unittest.TestCase):
                      {"vendor": "A", "url": "u2", "title": "t2", "decision": "watch"},
                      {"vendor": "A", "url": "u3", "title": "t3", "decision": "pending"},
                      {"vendor": "A", "url": "u4", "title": "t4", "decision": "auto-dismissed"}]
+            prior[0]["body"] = "x" * 500
             ledger.add_many(path, prior)
+            self.assertEqual(len(json.load(open(path))["items"][0]["body"]), 203)
             incoming = [{"vendor": "A", "url": f"u{n}", "title": f"t{n}"} for n in range(1, 6)]
             r = run("ledger.py", path, "filter", stdin=json.dumps({"items": incoming}))
             self.assertEqual(r.returncode, 0, r.stderr)
