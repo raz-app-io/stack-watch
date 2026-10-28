@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.3.1 (2026-10-28)
+
+Security hardening from an internal review; no behavior change for ordinary runs.
+
+- New `safe_http.py` used by every fetcher: http(s) only, credentials in URLs refused, private/loopback/link-local/metadata addresses refused unless `--allow-private-hosts`, redirects followed manually with the same checks per hop, `Authorization` dropped on cross-host redirects, response size caps (5 MB feeds, 2 MB endoflife.date documents, 30 MB registry records, 20 MB OSV)
+- `headless.py` never falls back to the package manager's audit (OSV.dev only); the digest escapes Markdown and defuses `@mentions` in vendor text and links only http(s) URLs
+- npm package names are validated against npm's rule before any registry URL is built
+- Workflow template pins stack-watch to the release tag and all actions to commit SHAs; repo CI pinned the same way; Dependabot keeps the pins current
+- SECURITY.md with scope and the private reporting channel
+- 16 new tests (83 total), including a local HTTP server exercising redirects, token handling, and size limits
+
 ## 1.3.0 (2026-10-22)
 
 - New `rank.py`: every proposal gets a score (severity base + impact + exposure + urgency - effort cost) and a grade A to D, the table is sorted by score, and a Default column suggests ticket, ticket (backlog), or watch. A summary line counts grades; `defaults` is a valid reply

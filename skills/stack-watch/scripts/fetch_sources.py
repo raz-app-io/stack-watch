@@ -43,8 +43,10 @@ import xml.etree.ElementTree as ET
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import ledger  # noqa: E402
+import safe_http  # noqa: E402
 
-USER_AGENT = "stack-watch/1.1 (+https://github.com/raz-app-io/stack-watch)"
+USER_AGENT = safe_http.USER_AGENT
+FEED_LIMIT = 5_000_000  # bytes; a feed larger than this is reported as unreachable
 ATOM = "{http://www.w3.org/2005/Atom}"
 CONTENT_NS = "{http://purl.org/rss/1.0/modules/content/}"
 DC_NS = "{http://purl.org/dc/elements/1.1/}"
@@ -55,26 +57,16 @@ GITHUB_RELEASES_RE = re.compile(
 PRERELEASE_RE = re.compile(
     r"\d-(?:canary|alpha|beta|rc|next|preview|nightly|experimental|dev)\b"
     r"|\b(?:canary|alpha|beta|rc)[.\-]?\d", re.I)
-REDIRECT_CODES = {301, 302, 303, 307, 308}
 TAG_RE = re.compile(r"<[^>]+>")
 WS_RE = re.compile(r"\s+")
 
 
-def fetch(url, timeout, headers=None, _hops=0):
-    req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT,
-                                               **(headers or {})})
-    try:
-        with urllib.request.urlopen(req, timeout=timeout) as resp:
-            return resp.read().decode("utf-8", errors="replace")
-    except urllib.error.HTTPError as e:
-        # Python < 3.11 does not follow 308 on its own.
-        target = e.headers.get("Location") if e.headers else None
-        if e.code in REDIRECT_CODES and target and _hops < 5:
-            new_url = urllib.parse.urljoin(url, target)
-            if urllib.parse.urlsplit(new_url).scheme not in ("http", "https"):
-                raise urllib.error.URLError(f"refusing redirect to {new_url[:60]}")
-            return fetch(new_url, timeout, headers, _hops + 1)
-        raise
+def fetch(url, timeout, headers=None):
+    """GET under safe_http's rules: http(s) only, no private hosts unless
+    allowed, redirects policed hop by hop, Authorization dropped when a
+    redirect leaves the host, body capped at FEED_LIMIT."""
+    text, _ = safe_http.open_url(url, timeout, headers, limit=FEED_LIMIT)
+    return text
 
 
 def clean_text(s, max_body):
@@ -260,8 +252,11 @@ def main():
     ap.add_argument("--timeout", type=int, default=20)
     ap.add_argument("--max-body", type=int, default=1500)
     ap.add_argument("--include-prereleases", action="store_true")
+    ap.add_argument("--allow-private-hosts", action="store_true",
+                    help="permit feeds on private or link-local addresses (self-hosted vendors)")
     ap.add_argument("--pretty", action="store_true")
     args = ap.parse_args()
+    safe_http.ALLOW_PRIVATE = args.allow_private_hosts
     if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", args.since):
         print("error: --since must be YYYY-MM-DD", file=sys.stderr)
         sys.exit(2)

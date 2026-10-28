@@ -8,7 +8,8 @@
 # Claude Code; the ledger is only written by that run, so the issue keeps
 # listing an item until someone decides on it.
 #
-# Set STACK_WATCH_REF to pin a stack-watch version (a tag such as v1.2.0).
+# STACK_WATCH_REF pins the stack-watch release the job runs; bump it on purpose.
+# The actions below are pinned to commit SHAs; Dependabot can keep them current.
 
 name: stack-watch
 
@@ -22,15 +23,15 @@ permissions:
   issues: write
 
 env:
-  STACK_WATCH_REF: main
+  STACK_WATCH_REF: v1.3.1
 
 jobs:
   probe:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
         with:
           python-version: "3.12"
 
@@ -44,6 +45,8 @@ jobs:
         run: |
           set +e
           mkdir -p /tmp/probe
+          # headless.py never runs the repo's package manager and fetches http(s) only;
+          # add --allow-private-hosts only for self-hosted vendors on a self-hosted runner.
           python3 /tmp/stack-watch/skills/stack-watch/scripts/headless.py . --out /tmp/probe --pretty > /tmp/probe/summary.json
           code=$?
           cat /tmp/probe/summary.json
@@ -64,7 +67,7 @@ jobs:
             gh issue create --title "stack-watch: new vendor items ($(date -u +%F))" --label stack-watch --body-file /tmp/probe/digest.md
           fi
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         if: always()
         with:
           name: stack-watch-probe

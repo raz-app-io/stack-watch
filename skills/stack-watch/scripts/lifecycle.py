@@ -32,12 +32,18 @@ import os
 import re
 import sys
 import urllib.error
+import urllib.parse
 import urllib.request
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import ledger  # noqa: E402
+import safe_http  # noqa: E402
 
-USER_AGENT = "stack-watch/1.2 (+https://github.com/raz-app-io/stack-watch)"
+USER_AGENT = safe_http.USER_AGENT
+DOC_LIMIT = 2_000_000       # bytes per endoflife.date document
+REGISTRY_LIMIT = 30_000_000  # the abbreviated record of a package with thousands of versions is several MB
+# npm's own naming rule; anything else is not looked up (it would be a URL injection)
+NPM_NAME_RE = re.compile(r"^(@[a-z0-9-~][a-z0-9-._~]*/)?[a-z0-9-~][a-z0-9-._~]*$")
 EOL_API = "https://endoflife.date/api/{slug}.json"
 EOL_PAGE = "https://endoflife.date/{slug}"
 REGISTRY = "https://registry.npmjs.org/{name}"
@@ -54,12 +60,17 @@ PACKAGE_SECTIONS = {"framework", "database", "orm", "auth", "analytics", "key_pa
 
 
 def get_json(url, timeout, accept=None):
-    headers = {"User-Agent": USER_AGENT}
-    if accept:
-        headers["Accept"] = accept
-    req = urllib.request.Request(url, headers=headers)
-    with urllib.request.urlopen(req, timeout=timeout) as resp:
-        return json.loads(resp.read().decode("utf-8"))
+    headers = {"Accept": accept} if accept else None
+    limit = REGISTRY_LIMIT if url.startswith(REGISTRY.format(name="")) else DOC_LIMIT
+    text, _ = safe_http.open_url(url, timeout, headers, limit=limit)
+    return json.loads(text)
+
+
+def registry_url(name):
+    """Registry document URL for a valid npm package name, else None."""
+    if not NPM_NAME_RE.match(name or "") or len(name) > 214:
+        return None
+    return REGISTRY.format(name=urllib.parse.quote(name, safe="@/"))
 
 
 def exact_version(text):
@@ -212,8 +223,11 @@ def check(scan, today=None, soon_days=120, timeout=20, fetch=get_json, workers=8
 
     def do_pkg(t):
         name, declared = t
+        url = registry_url(name)
+        if not url:
+            return None, f"npm registry: skipped invalid package name {name[:60]!r}"
         try:
-            return version_row(name, declared, fetch(REGISTRY.format(name=name), timeout, REGISTRY_ACCEPT)), None
+            return version_row(name, declared, fetch(url, timeout, REGISTRY_ACCEPT)), None
         except (urllib.error.URLError, OSError, ValueError, KeyError) as e:
             return None, f"npm registry {name}: {str(e)[:120]}"
 
@@ -244,8 +258,10 @@ def main():
     ap.add_argument("--soon-days", type=int, default=120,
                     help="flag end-of-life dates within this many days (default 120)")
     ap.add_argument("--timeout", type=int, default=20)
+    ap.add_argument("--allow-private-hosts", action="store_true")
     ap.add_argument("--pretty", action="store_true")
     args = ap.parse_args()
+    safe_http.ALLOW_PRIVATE = args.allow_private_hosts
     try:
         with open(args.scan_json, encoding="utf-8") as f:
             scan = json.load(f)

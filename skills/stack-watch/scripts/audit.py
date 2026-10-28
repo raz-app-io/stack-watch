@@ -13,7 +13,11 @@ Usage:
     python3 audit.py <repo> [--source auto|osv|pm] [--pretty]
     python3 audit.py --input <saved-output> [--format npm|v6|berry|osv] [--pretty]
 
---input parses a saved audit response instead of running one. Formats: npm
+--input parses a saved audit response instead of running one.
+
+The package-manager fallback runs the repo's own tooling (`yarn npm audit`
+loads .yarnrc.yml plugins; npm honors a repo .npmrc). Use --source osv on a
+repo you do not fully trust; headless.py always does. Formats: npm
 (npm 7+ and bun), v6 (pnpm, Yarn 1 `auditAdvisory` lines), berry (Yarn 2+
 `yarn npm audit --json`), osv (an OSV `/v1/query` response or a list of
 them). --format is detected from the content when omitted.
@@ -40,12 +44,14 @@ import urllib.request
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import ledger  # noqa: E402
+import safe_http  # noqa: E402
 import scan_repo  # noqa: E402
 
 OSV_BATCH = "https://api.osv.dev/v1/querybatch"
 OSV_QUERY = "https://api.osv.dev/v1/query"
 OSV_BATCH_SIZE = 500
-USER_AGENT = "stack-watch/1.2 (+https://github.com/raz-app-io/stack-watch)"
+USER_AGENT = safe_http.USER_AGENT
+OSV_LIMIT = 20_000_000  # bytes; a batch response for a large lockfile can be big
 
 COMMANDS = {
     "npm": ["npm", "audit", "--json"],
@@ -77,11 +83,15 @@ def make_item(package, title, url, adv_severity, vulnerable, fix, direct):
 # ---------------------------------------------------------------- OSV
 
 def post_json(url, payload, timeout):
+    safe_http.check_url(url)
     req = urllib.request.Request(url, data=json.dumps(payload).encode("utf-8"),
                                  headers={"Content-Type": "application/json",
                                           "User-Agent": USER_AGENT})
     with urllib.request.urlopen(req, timeout=timeout) as resp:
-        return json.loads(resp.read().decode("utf-8"))
+        data = resp.read(OSV_LIMIT + 1)
+        if len(data) > OSV_LIMIT:
+            raise ValueError(f"OSV response larger than {OSV_LIMIT} bytes")
+        return json.loads(data.decode("utf-8"))
 
 
 def locked_packages(repo):

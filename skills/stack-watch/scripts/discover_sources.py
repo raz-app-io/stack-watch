@@ -36,7 +36,11 @@ import urllib.error
 import urllib.parse
 import urllib.request
 
-USER_AGENT = "stack-watch/1.2 (+https://github.com/raz-app-io/stack-watch)"
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import safe_http  # noqa: E402
+
+USER_AGENT = safe_http.USER_AGENT
+NPM_NAME_RE = re.compile(r"^(@[a-z0-9-~][a-z0-9-._~]*/)?[a-z0-9-~][a-z0-9-._~]*$")
 REGISTRY_LATEST = "https://registry.npmjs.org/{name}/latest"
 PACKAGE_SECTIONS = {"framework", "database", "orm", "auth", "analytics", "key_package"}
 SKIP_HOMEPAGE_HOSTS = {"github.com", "www.github.com", "www.npmjs.com", "npmjs.com",
@@ -53,10 +57,9 @@ HREF_RE = re.compile(r"""href\s*=\s*["']([^"']+)["']""", re.I)
 
 
 def fetch_text(url, timeout, limit=300_000):
-    req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
-    with urllib.request.urlopen(req, timeout=timeout) as resp:
-        final = resp.geturl()
-        return resp.read(limit).decode("utf-8", errors="replace"), final
+    """GET under safe_http's rules (http(s) only, no private hosts unless
+    allowed, capped body). Returns (text, final_url)."""
+    return safe_http.open_url(url, timeout, limit=limit)
 
 
 def fetch_json(url, timeout):
@@ -237,8 +240,10 @@ def discover(scan, existing=None, timeout=15, fetch=fetch_text, fetch_json_fn=fe
             todo.append(p)
 
     def meta(p):
+        if not NPM_NAME_RE.match(p) or len(p) > 214:
+            return None, f"registry: skipped invalid package name {p[:60]!r}"
         try:
-            d = fetch_json_fn(REGISTRY_LATEST.format(name=p), timeout)
+            d = fetch_json_fn(REGISTRY_LATEST.format(name=urllib.parse.quote(p, safe="@/")), timeout)
             return {"package": p, "repository": d.get("repository"), "homepage": d.get("homepage")}, None
         except (urllib.error.URLError, OSError, ValueError) as e:
             return None, f"registry {p}: {str(e)[:100]}"
@@ -262,8 +267,10 @@ def main():
     ap.add_argument("scan_json")
     ap.add_argument("--existing", help="current sources.json; packages it covers are skipped")
     ap.add_argument("--timeout", type=int, default=15)
+    ap.add_argument("--allow-private-hosts", action="store_true")
     ap.add_argument("--pretty", action="store_true")
     args = ap.parse_args()
+    safe_http.ALLOW_PRIVATE = args.allow_private_hosts
     try:
         with open(args.scan_json, encoding="utf-8") as f:
             scan = json.load(f)

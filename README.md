@@ -110,6 +110,10 @@ Breaking, Deprecation, and Security items create a linked pair: a `RISK:` ticket
 - **STACK.md is a hypothesis, not the truth.** Every run rescans. A row that disappears is flagged once, then removed on the second consecutive miss.
 - **Scripts do the deterministic work.** Scanning, rendering, diffing, fetching, auditing, and dedupe are Python with no dependencies and are unit tested. Claude's judgment is spent on reading HTML-only sources, classifying severity, and mapping impact.
 
+## Security
+
+stack-watch reads untrusted input by design, so the fetchers are guarded: http(s) only, no credentials in URLs, no private or link-local addresses unless you pass `--allow-private-hosts`, response sizes capped, redirects policed hop by hop with the GitHub token dropped if one leaves `api.github.com`. The headless job never runs your package manager (OSV.dev only) and neutralizes mentions and Markdown in vendor text before it reaches an issue. The scheduled workflow template pins stack-watch to a release tag and its actions to commit SHAs. Details and how to report a problem: [SECURITY.md](SECURITY.md).
+
 ## Limitations
 
 - **JavaScript and TypeScript projects only** (npm, pnpm, Yarn, and bun). Python, Go, Ruby, and other ecosystems are not scanned yet. Monorepos are scanned at the root `package.json` only. Bun's binary `bun.lockb` yields declared ranges, not locked versions; the text `bun.lock` is fully supported.
