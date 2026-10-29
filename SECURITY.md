@@ -13,7 +13,7 @@ stack-watch reads untrusted input by design: vendor changelogs and release feeds
 - leak a token (the `GITHUB_TOKEN` is sent to `api.github.com` only and dropped on any redirect to another host);
 - put text in front of a person that looks like it came from the tool (digests and reports quote vendor text as data; mentions and markdown in titles are neutralized).
 
-Out of scope: vulnerabilities in the vendors whose changelogs stack-watch reads, and the fixture project under `examples/`, which intentionally pins old versions with known advisories so the sample output has something to show.
+Out of scope: vulnerabilities in the vendors whose changelogs stack-watch reads, and the fixture project under `examples/`, which intentionally pins old versions with known advisories so the sample output has something to show. Its lockfile is generated locally rather than committed, so those pins do not appear as Dependabot alerts on this repository.
 
 ## Supply chain
 

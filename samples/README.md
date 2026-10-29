@@ -148,6 +148,7 @@ Decisions: `ticketed`, `watch` (shown again next run), `dismissed`, `auto-dismis
 From the repository root:
 
 ```bash
+python3 examples/sample-next-app/generate-lockfile.py   # writes the sample's lockfile (not committed)
 python3 skills/stack-watch/scripts/scan_repo.py examples/sample-next-app --pretty > /tmp/scan.json
 python3 skills/stack-watch/scripts/diff_stack.py /tmp/scan.json samples/STACK.md --pretty
 python3 skills/stack-watch/scripts/fetch_sources.py samples/sources.json --since 2026-10-01 --pretty

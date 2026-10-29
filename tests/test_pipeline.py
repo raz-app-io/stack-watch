@@ -8,6 +8,7 @@ import datetime
 import json
 import os
 import re
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -28,6 +29,17 @@ import ledger  # noqa: E402
 import render_stack  # noqa: E402
 
 TODAY = datetime.date.today().isoformat()
+
+
+def prepared_example():
+    """A temporary copy of the sample project with its lockfile generated
+    (the lockfile is not committed; see examples/sample-next-app/generate-lockfile.py)."""
+    tmp = tempfile.TemporaryDirectory()
+    dest = os.path.join(tmp.name, "sample-next-app")
+    shutil.copytree(EXAMPLE, dest, ignore=shutil.ignore_patterns("package-lock.json", "__pycache__"))
+    subprocess.run([sys.executable, os.path.join(EXAMPLE, "generate-lockfile.py"), dest],
+                   check=True, capture_output=True)
+    return tmp, dest
 
 
 def run(script, *args, stdin=None):
@@ -361,7 +373,9 @@ class SampleProjectTest(unittest.TestCase):
     """The committed samples stay in sync with the scripts and the example project."""
 
     def test_sample_stack_md_has_no_drift(self):
-        scan = run("scan_repo.py", EXAMPLE)
+        tmp, repo = prepared_example()
+        self.addCleanup(tmp.cleanup)
+        scan = run("scan_repo.py", repo)
         self.assertEqual(scan.returncode, 0, scan.stderr)
         with tempfile.TemporaryDirectory() as d:
             scan_path = os.path.join(d, "scan.json")
@@ -384,6 +398,22 @@ class SampleProjectTest(unittest.TestCase):
             for s in v["sources"]:
                 self.assertTrue(s.get("url") or s.get("command"))
                 self.assertRegex(s["verified"], r"^\d{4}-\d{2}-\d{2}$")
+
+    def test_generated_lockfile_matches_locked_versions(self):
+        tmp, repo = prepared_example()
+        self.addCleanup(tmp.cleanup)
+        with open(os.path.join(repo, "package-lock.json")) as f:
+            lock = json.load(f)
+        with open(os.path.join(EXAMPLE, "locked-versions.json")) as f:
+            versions = json.load(f)
+        self.assertEqual(lock["lockfileVersion"], 3)
+        self.assertEqual({k[len("node_modules/"):]: v["version"] for k, v in lock["packages"].items()
+                          if k.startswith("node_modules/")}, versions)
+        self.assertFalse(os.path.exists(os.path.join(EXAMPLE, "package-lock.json")) and
+                         subprocess.run(["git", "-C", ROOT, "ls-files", "--error-unmatch",
+                                         "examples/sample-next-app/package-lock.json"],
+                                        capture_output=True).returncode == 0,
+                         "the sample lockfile must not be committed")
 
     def test_example_env_file_is_names_only(self):
         with open(os.path.join(EXAMPLE, ".env.example"), encoding="utf-8") as f:
@@ -423,7 +453,9 @@ class AuditOsvTest(unittest.TestCase):
         self.assertEqual(len(items), 2)
 
     def test_locked_packages_from_example(self):
-        locked, direct, unresolved = audit.locked_packages(EXAMPLE)
+        tmp, repo = prepared_example()
+        self.addCleanup(tmp.cleanup)
+        locked, direct, unresolved = audit.locked_packages(repo)
         self.assertEqual(locked["next"], "14.2.21")
         self.assertIn("typescript", direct)
         self.assertEqual(unresolved, [])
