@@ -32,12 +32,12 @@ TODAY = datetime.date.today().isoformat()
 
 
 def prepared_example():
-    """A temporary copy of the sample project with its lockfile generated
-    (the lockfile is not committed; see examples/sample-next-app/generate-lockfile.py)."""
+    """A temporary copy of the sample project with package.json and the
+    lockfile generated (neither is committed; see generate-fixture.py)."""
     tmp = tempfile.TemporaryDirectory()
     dest = os.path.join(tmp.name, "sample-next-app")
-    shutil.copytree(EXAMPLE, dest, ignore=shutil.ignore_patterns("package-lock.json", "__pycache__"))
-    subprocess.run([sys.executable, os.path.join(EXAMPLE, "generate-lockfile.py"), dest],
+    shutil.copytree(EXAMPLE, dest, ignore=shutil.ignore_patterns("package.json", "package-lock.json", "__pycache__"))
+    subprocess.run([sys.executable, os.path.join(EXAMPLE, "generate-fixture.py"), dest],
                    check=True, capture_output=True)
     return tmp, dest
 
@@ -409,11 +409,13 @@ class SampleProjectTest(unittest.TestCase):
         self.assertEqual(lock["lockfileVersion"], 3)
         self.assertEqual({k[len("node_modules/"):]: v["version"] for k, v in lock["packages"].items()
                           if k.startswith("node_modules/")}, versions)
-        self.assertFalse(os.path.exists(os.path.join(EXAMPLE, "package-lock.json")) and
-                         subprocess.run(["git", "-C", ROOT, "ls-files", "--error-unmatch",
-                                         "examples/sample-next-app/package-lock.json"],
-                                        capture_output=True).returncode == 0,
-                         "the sample lockfile must not be committed")
+        tracked = subprocess.run(["git", "-C", ROOT, "ls-files", "examples/sample-next-app"],
+                                 capture_output=True, text=True).stdout.split()
+        for name in ("package.json", "package-lock.json"):
+            self.assertNotIn(f"examples/sample-next-app/{name}", tracked,
+                             f"{name} must not be committed (Dependabot would alert on the fixture)")
+        with open(os.path.join(repo, "package.json")) as f:
+            self.assertEqual(json.load(f)["dependencies"]["next"], "^14.2.21")
 
     def test_example_env_file_is_names_only(self):
         with open(os.path.join(EXAMPLE, ".env.example"), encoding="utf-8") as f:

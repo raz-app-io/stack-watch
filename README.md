@@ -155,7 +155,7 @@ python3 -m unittest discover -s tests -v
 The scripts can be run directly. Against the sample project:
 
 ```bash
-python3 examples/sample-next-app/generate-lockfile.py   # the sample's lockfile is generated, not committed
+python3 examples/sample-next-app/generate-fixture.py    # writes the sample's package.json and lockfile (not committed)
 python3 skills/stack-watch/scripts/scan_repo.py examples/sample-next-app --pretty > /tmp/scan.json
 python3 skills/stack-watch/scripts/diff_stack.py /tmp/scan.json samples/STACK.md --pretty
 python3 skills/stack-watch/scripts/fetch_sources.py samples/sources.json --since 2026-10-01 --pretty

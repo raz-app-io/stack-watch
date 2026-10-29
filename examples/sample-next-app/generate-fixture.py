@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
-"""Write package-lock.json for the sample project from locked-versions.json.
+"""Write package.json and package-lock.json for the sample project.
 
-The lockfile is not committed: it pins deliberately old versions so the
-sample output has real findings, and a committed lockfile would make
-GitHub's dependency graph raise Dependabot alerts against this repository
-for a fixture. Run this before scanning the sample by hand; the tests run
-it into a temporary copy.
+Neither file is committed. The sample pins deliberately old versions so its
+output has real findings, and GitHub's dependency graph reads any committed
+package.json or lockfile and raises Dependabot alerts against this
+repository for a fixture. package.sample.json holds the manifest and
+locked-versions.json the exact versions. Run this before scanning the
+sample by hand; the tests run it into a temporary copy.
 
 Usage:
-    python3 examples/sample-next-app/generate-lockfile.py [target-dir]
+    python3 examples/sample-next-app/generate-fixture.py [target-dir]
 """
 
 import json
@@ -19,8 +20,12 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 
 
 def build(target=HERE):
-    with open(os.path.join(HERE, "package.json"), encoding="utf-8") as f:
+    with open(os.path.join(HERE, "package.sample.json"), encoding="utf-8") as f:
         pkg = json.load(f)
+    os.makedirs(target, exist_ok=True)
+    with open(os.path.join(target, "package.json"), "w", encoding="utf-8") as f:
+        json.dump(pkg, f, indent=2)
+        f.write("\n")
     with open(os.path.join(HERE, "locked-versions.json"), encoding="utf-8") as f:
         versions = json.load(f)
     packages = {"": {"name": pkg.get("name", "sample-next-app")}}
