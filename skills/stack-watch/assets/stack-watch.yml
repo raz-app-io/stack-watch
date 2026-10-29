@@ -23,7 +23,7 @@ permissions:
   issues: write
 
 env:
-  STACK_WATCH_REF: v1.3.1
+  STACK_WATCH_REF: v1.3.2
 
 jobs:
   probe:
